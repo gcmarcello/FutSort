@@ -7,7 +7,7 @@ const proConfig = process.env.DATABASE_URL;
 const pool =
   process.env.NODE_ENV === "production"
     ? new Pool({
-        connectionString: prodConfig,
+        connectionString: proConfig,
         ssl: {
           rejectUnauthorized: false,
         },
