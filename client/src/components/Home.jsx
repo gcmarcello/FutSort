@@ -13,9 +13,9 @@ const Home = () => {
           <a href="/dashboard" className="btn btn-primary me-3" role="button">
             Login
           </a>
-          <button className="btn btn-disabled shadow-sm">
-            Register (Soon)
-          </button>
+          <a href="/register" className="btn btn-secondary me-3" role="button">
+            Registrar
+          </a>
         </div>
       </div>
     </Fragment>
