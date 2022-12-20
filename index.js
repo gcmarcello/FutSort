@@ -38,6 +38,8 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "client/build")));
   // Home Page
   app.use("/", express.static(path.join(__dirname, "client/build")));
+  // Register
+  app.use("/register", express.static(path.join(__dirname, "client/build")));
   // Dashboard
   app.use("/dashboard", express.static(path.join(__dirname, "client/build")));
   // Edit Matches
