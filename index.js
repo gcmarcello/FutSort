@@ -33,7 +33,17 @@ app.use("/api/player", require("./routes/player"));
 app.use("/api/match", require("./routes/match"));
 
 if (process.env.NODE_ENV === "production") {
+  /* React Routes */
+  // Serve react files
   app.use(express.static(path.join(__dirname, "client/build")));
+  // Home Page
+  app.use("/", express.static(path.join(__dirname, "client/build")));
+  // Dashboard
+  app.use("/dashboard", express.static(path.join(__dirname, "client/build")));
+  // Edit Matches
+  app.use("/editmatch/*", express.static(path.join(__dirname, "client/build")));
+  // View Matches
+  app.use("/viewmatch/*", express.static(path.join(__dirname, "client/build")));
 }
 
 app.listen(port, () => {
