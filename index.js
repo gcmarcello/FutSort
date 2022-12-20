@@ -22,31 +22,29 @@ app.use(requireHTTPS);
 app.use(express.json());
 app.use(cors());
 
-if (process.env.NODE_ENV === "production") {
-  /* API Routes */
-  // Auth Routes
-  app.use("/api/auth", require("./routes/auth"));
-  // Group Routes
-  app.use("/api/group", require("./routes/group"));
-  // Player Routes
-  app.use("/api/player", require("./routes/player"));
-  // Match Routes
-  app.use("/api/match", require("./routes/match"));
+/* API Routes */
+// Auth Routes
+app.use("/api/auth", require("./routes/auth"));
+// Group Routes
+app.use("/api/group", require("./routes/group"));
+// Player Routes
+app.use("/api/player", require("./routes/player"));
+// Match Routes
+app.use("/api/match", require("./routes/match"));
 
-  /* React Routes */
-  // Serve react files
-  app.use(express.static(path.join(__dirname, "client/build")));
-  // Home Page
-  app.use("/", express.static(path.join(__dirname, "client/build")));
-  // Register
-  app.use("/register", express.static(path.join(__dirname, "client/build")));
-  // Dashboard
-  app.use("/dashboard", express.static(path.join(__dirname, "client/build")));
-  // Edit Matches
-  app.use("/editmatch/*", express.static(path.join(__dirname, "client/build")));
-  // View Matches
-  app.use("/viewmatch/*", express.static(path.join(__dirname, "client/build")));
-}
+/* React Routes */
+// Serve react files
+app.use(express.static(path.join(__dirname, "client/build")));
+// Home Page
+app.use("/", express.static(path.join(__dirname, "client/build")));
+// Register
+app.use("/register", express.static(path.join(__dirname, "client/build")));
+// Dashboard
+app.use("/dashboard", express.static(path.join(__dirname, "client/build")));
+// Edit Matches
+app.use("/editmatch/*", express.static(path.join(__dirname, "client/build")));
+// View Matches
+app.use("/viewmatch/*", express.static(path.join(__dirname, "client/build")));
 
 app.listen(port, () => {
   console.log(
