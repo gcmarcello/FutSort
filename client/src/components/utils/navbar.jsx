@@ -16,6 +16,7 @@ const NavBar = ({ isAuthenticated, setIsAuthenticated }) => {
       });
       const parseData = await response.json();
       setName(parseData[0].user_name);
+      console.log(name);
     } catch (err) {
       console.log(err.message);
     }
