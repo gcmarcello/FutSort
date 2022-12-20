@@ -22,17 +22,17 @@ app.use(requireHTTPS);
 app.use(express.json());
 app.use(cors());
 
-/* API Routes */
-// Auth Routes
-app.use("/api/auth", require("./routes/auth"));
-// Group Routes
-app.use("/api/group", require("./routes/group"));
-// Player Routes
-app.use("/api/player", require("./routes/player"));
-// Match Routes
-app.use("/api/match", require("./routes/match"));
-
 if (process.env.NODE_ENV === "production") {
+  /* API Routes */
+  // Auth Routes
+  app.use("/api/auth", require("./routes/auth"));
+  // Group Routes
+  app.use("/api/group", require("./routes/group"));
+  // Player Routes
+  app.use("/api/player", require("./routes/player"));
+  // Match Routes
+  app.use("/api/match", require("./routes/match"));
+
   /* React Routes */
   // Serve react files
   app.use(express.static(path.join(__dirname, "client/build")));
