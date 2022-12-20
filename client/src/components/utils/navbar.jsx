@@ -1,6 +1,26 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
+import { useEffect } from "react";
 
-const NavBar = ({ pageName, isAuthenticated, setIsAuthenticated }) => {
+const NavBar = ({ isAuthenticated, setIsAuthenticated }) => {
+  const [name, setName] = useState("");
+
+  const getProfile = async () => {
+    try {
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("token", localStorage.token);
+
+      const response = await fetch(`/api/auth/getprofile/`, {
+        method: "GET",
+        headers: myHeaders,
+      });
+      const parseData = await response.json();
+      setName(parseData[0].user_name);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
   const logout = async (e) => {
     if (window.confirm("Tem certeza que deseja sair?")) {
       e.preventDefault();
@@ -9,10 +29,15 @@ const NavBar = ({ pageName, isAuthenticated, setIsAuthenticated }) => {
         setIsAuthenticated(false);
         window.location = "/dashboard";
       } catch (err) {
-        console.error(err.message);
+        console.log(err.message);
       }
     }
   };
+
+  useEffect(() => {
+    getProfile();
+  });
+
   return (
     <Fragment>
       <nav
@@ -20,8 +45,8 @@ const NavBar = ({ pageName, isAuthenticated, setIsAuthenticated }) => {
         aria-label="Offcanvas navbar large"
       >
         <div className="container-fluid">
-          <a className="navbar-brand" href="/dashboard">
-            {`FutSort`}
+          <a className="navbar-brand" href="/">
+            {name ? `FutSort - ${name}` : `FutSort`}
           </a>
           <button
             className="navbar-toggler"

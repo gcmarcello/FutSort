@@ -2,10 +2,11 @@ import React, { Fragment, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-import Loading from "../Loading";
+import Loading from "../utils/Loading";
 
 const EditMatch = ({ isAuthenticated }) => {
-  let id = useParams().id || 42;
+  let id = useParams().id;
+  const [isLoading, setIsLoading] = useState(true);
   const [matchStats, setMatchStats] = useState([]);
   const [submitStats, setSubmitStats] = useState([]);
   const [matchPlayers, setMatchPlayers] = useState([]);
@@ -40,17 +41,15 @@ const EditMatch = ({ isAuthenticated }) => {
 
   const getMatch = async () => {
     try {
+      setIsLoading(true);
       const myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
 
-      const res = await fetch(
-        `http://192.168.68.106:5000/match/editmatches/${id}`,
-        {
-          method: "GET",
-          headers: myHeaders,
-        }
-      );
+      const res = await fetch(`/api/match/listmatchplayers/${id}`, {
+        method: "GET",
+        headers: myHeaders,
+      });
       const parseData = await res.json();
       setMatchStatus(parseData.responseStatus);
       setMatchStats(parseData.responseData);
@@ -69,8 +68,9 @@ const EditMatch = ({ isAuthenticated }) => {
       );
       setSubmitStats(parseData.responseData);
       setNumberOfTeams(parseData.responseNumberOfTeams);
+      setIsLoading(false);
     } catch (err) {
-      console.error(err.message);
+      console.log(err.message);
     }
   };
 
@@ -98,16 +98,12 @@ const EditMatch = ({ isAuthenticated }) => {
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
 
-      const response = await fetch(
-        `http://192.168.68.106:5000/match/editmatches/${id}`,
-        {
-          method: "PUT",
-          headers: myHeaders,
-          body: JSON.stringify(body),
-        }
-      );
+      const response = await fetch(`/api/match/editmatch/${id}`, {
+        method: "PUT",
+        headers: myHeaders,
+        body: JSON.stringify(body),
+      });
       const parseResponse = await response.json();
-
       setSaveButtonState({ disabled: false });
       if (parseResponse.responseStatus) {
         setEditButtonState({ disabled: true });
@@ -115,7 +111,7 @@ const EditMatch = ({ isAuthenticated }) => {
         setEditButtonState({ disabled: false });
       }
     } catch (err) {
-      console.error(err.message);
+      console.log(err.message);
     }
   };
 
@@ -130,14 +126,11 @@ const EditMatch = ({ isAuthenticated }) => {
         myHeaders.append("Content-Type", "application/json");
         myHeaders.append("token", localStorage.token);
 
-        const response = await fetch(
-          `http://192.168.68.106:5000/match/savematch/${id}`,
-          {
-            method: "PUT",
-            headers: myHeaders,
-            body: JSON.stringify(body),
-          }
-        );
+        const response = await fetch(`/api/match/savematch/${id}`, {
+          method: "PUT",
+          headers: myHeaders,
+          body: JSON.stringify(body),
+        });
         // eslint-disable-next-line
         const parseResponse = await response.json();
         setSaveButtonState({ disabled: true });
@@ -153,7 +146,7 @@ const EditMatch = ({ isAuthenticated }) => {
         });
         navigate("/dashboard");
       } catch (err) {
-        console.error(err.message);
+        console.log(err.message);
       }
     }
   };
@@ -168,7 +161,9 @@ const EditMatch = ({ isAuthenticated }) => {
 
   return (
     <Fragment>
-      {matchStats.length ? (
+      {isLoading ? (
+        <Loading />
+      ) : (
         <div className="container-fluid">
           <h2 className="mt-3 text-center">
             {matchStats[0].group_name} - {matchStats[0].formattedDate}{" "}
@@ -508,8 +503,6 @@ const EditMatch = ({ isAuthenticated }) => {
             </div>
           </div>
         </div>
-      ) : (
-        <Loading />
       )}
     </Fragment>
   );

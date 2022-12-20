@@ -18,7 +18,7 @@ const Login = ({ setIsAuthenticated }) => {
     e.preventDefault();
     try {
       const body = { name, password };
-      const response = await fetch("http://192.168.68.106:5000/auth/login", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         mode: "cors",
         headers: { "Content-type": "application/json" },
@@ -35,7 +35,7 @@ const Login = ({ setIsAuthenticated }) => {
         toast.error(parseRes, { theme: "colored" });
       }
     } catch (err) {
-      console.error(err.message);
+      console.log(err.message);
     }
   };
 

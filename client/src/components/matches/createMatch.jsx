@@ -22,7 +22,7 @@ const CreateMatch = ({ group, setGroupsChange }) => {
       myHeaders.append("token", localStorage.token);
 
       const response = await fetch(
-        `http://192.168.68.106:5000/match/creatematch/${group.group_id}`,
+        `/api/match/creatematch/${group.group_id}/playerlist`,
         {
           method: "GET",
           headers: myHeaders,
@@ -31,7 +31,7 @@ const CreateMatch = ({ group, setGroupsChange }) => {
       const parseData = await response.json();
       setPlayerList(parseData);
     } catch (err) {
-      console.error(err.message);
+      console.log(err.message);
     }
   };
 
@@ -107,19 +107,16 @@ const CreateMatch = ({ group, setGroupsChange }) => {
         pickedPlayers,
         pickedGoalkeepers,
       };
-      const response = await fetch(
-        `http://192.168.68.106:5000/match/creatematch/`,
-        {
-          method: "POST",
-          headers: myHeaders,
-          body: JSON.stringify(body),
-        }
-      );
+      const response = await fetch(`/api/match/creatematch/`, {
+        method: "POST",
+        headers: myHeaders,
+        body: JSON.stringify(body),
+      });
 
       const parseResponse = await response.json();
       window.location = `/editmatch/${parseResponse}`;
     } catch (err) {
-      console.error(err.message);
+      console.log(err.message);
     }
   };
 

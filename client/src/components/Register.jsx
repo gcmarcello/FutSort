@@ -20,7 +20,7 @@ const Register = ({ setIsAuthenticated }) => {
     e.preventDefault();
     const body = { email, name, password };
     try {
-      const response = await fetch("http://192.168.68.106:5000/auth/register", {
+      const response = await fetch("/auth/register", {
         method: "POST",
         headers: { "Content-type": "application/json" },
         body: JSON.stringify(body),
@@ -35,7 +35,7 @@ const Register = ({ setIsAuthenticated }) => {
         toast.error(parseRes, { theme: "colored" });
       }
     } catch (err) {
-      console.error(err.message);
+      console.log(err.message);
     }
   };
 

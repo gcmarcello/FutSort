@@ -2,22 +2,23 @@ import React, { Fragment, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const EditGroup = ({ group, setGroupsChange }) => {
-  //editText function
+const EditGroup = ({ group, groupChange, setGroupChange }) => {
   const [nameGroup, setNameGroup] = useState(group.group_name);
   const [playerList, setPlayerList] = useState([]);
   const [addPlayerName, setAddPlayerName] = useState("");
   const [addPlayerStars, setAddPlayerStars] = useState(2);
+  // eslint-disable-next-line
   const [playersChange, setPlayersChange] = useState(false);
 
   const getPlayers = async () => {
+    setPlayersChange(true);
     try {
       const myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
 
       const response = await fetch(
-        `http://192.168.68.106:5000/match/creatematch/${group.group_id}/`,
+        `/api/match/creatematch/${group.group_id}/playerlist/`,
         {
           method: "GET",
           headers: myHeaders,
@@ -25,35 +26,42 @@ const EditGroup = ({ group, setGroupsChange }) => {
       );
       const parseData = await response.json();
       setPlayerList(parseData);
+      setPlayersChange(false);
     } catch (err) {
-      console.error(err.message);
+      console.log(err.message);
     }
   };
 
-  const editText = async (id) => {
+  const updateGroup = async (id) => {
     try {
+      setGroupChange(true);
       const body = { nameGroup };
+      if (body.nameGroup.length < 5) {
+        setNameGroup(group.group_name);
+        return toast.error("O nome do grupo tem de ter mais de 5 caracteres.", {
+          theme: "colored",
+        });
+      }
 
       const myHeaders = new Headers();
 
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
 
-      await fetch(`http://192.168.68.106:5000/dashboard/groups/${id}`, {
+      const responseData = await fetch(`/api/group/updategroup/${id}`, {
         method: "PUT",
         headers: myHeaders,
         body: JSON.stringify(body),
       });
-
-      setGroupsChange(true);
-
-      // window.location = "/";
+      const parseResponse = await responseData.json();
+      setGroupChange(false);
+      toast.success(parseResponse, { theme: "colored" });
     } catch (err) {
-      console.error(err.message);
+      console.log(err.message);
     }
   };
 
-  const onSubmitForm = async (e) => {
+  const addPlayer = async (e) => {
     e.preventDefault();
     try {
       const myHeaders = new Headers();
@@ -63,7 +71,7 @@ const EditGroup = ({ group, setGroupsChange }) => {
 
       const body = { addPlayerName, addPlayerStars };
       const response = await fetch(
-        `http://192.168.68.106:5000/dashboard/groups/${group.group_id}/players`,
+        `/api/player/createplayer/${group.group_id}`,
         {
           method: "POST",
           headers: myHeaders,
@@ -72,42 +80,44 @@ const EditGroup = ({ group, setGroupsChange }) => {
       );
       // eslint-disable-next-line
       const parseResponse = await response.json();
-      setPlayersChange(true);
-      setAddPlayerName("");
-      toast.success("Jogador Adicionado!", { theme: "colored" });
+      if (typeof parseResponse === "string") {
+        toast.error(`${parseResponse}`, { theme: "colored" });
+      } else {
+        setPlayersChange(true);
+        setAddPlayerName("");
+        toast.success("Jogador Adicionado!", { theme: "colored" });
+      }
     } catch (err) {
       toast.error(err.message, { theme: "colored" });
     }
   };
 
-  useEffect(() => {
-    getPlayers();
-    setPlayersChange(false);
-    // eslint-disable-next-line
-  }, [playersChange]);
-
-  async function deleteGroup(id) {
+  const deleteGroup = async (id) => {
     if (
       window.prompt(
-        'Tem certeza de que quer deletar o grupo? Todas as partidas e jogadores serão removidos! \nDigite "Quero deletar este evento." para confirmar.'
-      ) === "Quero deletar este evento."
+        `Tem certeza de que quer deletar o grupo? Todas as partidas e jogadores serão removidos! \n\nDigite "${group.group_name}" para confirmar.`
+      ) === `${group.group_name}`
     ) {
       try {
         const myHeaders = new Headers();
 
         myHeaders.append("Content-Type", "application/json");
         myHeaders.append("token", localStorage.token);
-        await fetch(`http://192.168.68.106:5000/dashboard/groups/${id}`, {
+        await fetch(`/api/group/deletegroup/${id}`, {
           method: "DELETE",
           headers: myHeaders,
         });
-
         window.location = "/dashboard";
       } catch (err) {
-        console.error(err.message);
+        console.log(err.message);
       }
     }
-  }
+  };
+
+  useEffect(() => {
+    getPlayers();
+    // eslint-disable-next-line
+  }, [playerList]);
 
   return (
     <Fragment>
@@ -152,7 +162,7 @@ const EditGroup = ({ group, setGroupsChange }) => {
               />
 
               <div className="my-3" id="add-player-form">
-                <form onSubmit={onSubmitForm}>
+                <form onSubmit={addPlayer}>
                   <div className="row">
                     <div className="col">
                       <label htmlFor="add-player-input">
@@ -222,7 +232,7 @@ const EditGroup = ({ group, setGroupsChange }) => {
                 type="button"
                 className="btn btn-success"
                 data-bs-dismiss="modal"
-                onClick={() => editText(group.group_id)}
+                onClick={() => updateGroup(group.group_id)}
               >
                 Salvar
               </button>

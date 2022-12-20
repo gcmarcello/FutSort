@@ -2,22 +2,33 @@ console.clear();
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const port = 5000;
+const path = require("path");
+const port = process.env.PORT || 5000;
 
-// Middlewares
+/* Middlewares */
 app.use(express.json());
 app.use(cors());
 
-// Routes
+/* API Routes */
+// Auth Routes
+app.use("/api/auth", require("./routes/auth"));
+// Group Routes
+app.use("/api/group", require("./routes/group"));
+// Player Routes
+app.use("/api/player", require("./routes/player"));
+// Match Routes
+app.use("/api/match", require("./routes/match"));
 
-//Login and Register Routes
-app.use("/auth", require("./routes/jwtAuth"));
+/* React Routes */
+// Serve react files
+app.use(express.static(path.join(__dirname, "client/build")));
 
-//Dashboard Route
-app.use("/dashboard", require("./routes/dashboard"));
-
-//Match Route
-app.use("/match", require("./routes/match"));
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "client/build")));
+  app.get("/dashboard", function (req, res) {
+    res.sendFile(path.join(__dirname, "client/build", "index.html"));
+  });
+}
 
 app.listen(port, () => {
   console.log(

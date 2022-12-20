@@ -32,7 +32,7 @@ router.post("/register", validInfo, async (req, res) => {
     const token = jwtGenerator(newUser.rows[0].user_id);
     res.json({ token });
   } catch (err) {
-    console.error(err.message);
+    console.log(err.message);
     res.status(500).json("Server Error");
   }
 });
@@ -65,10 +65,25 @@ router.post("/login", validInfo, async (req, res) => {
   res.json({ name, password, token });
 });
 
-router.get("/is-verify", authorization, async (req, res) => {
+// Authentication Route
+router.get("/authentication", authorization, async (req, res) => {
   try {
     res.json(true);
   } catch (err) {
+    res.status(500).json("Server Error");
+  }
+});
+
+// Get Profile
+router.get("/getprofile", authorization, async (req, res) => {
+  try {
+    const user = await pool.query(
+      "SELECT user_name FROM users AS u WHERE u.user_id = $1",
+      [req.user]
+    );
+    res.json(user.rows);
+  } catch (err) {
+    console.log(err.message);
     res.status(500).json("Server Error");
   }
 });

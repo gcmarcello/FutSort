@@ -3,14 +3,31 @@ import EditGroup from "./editGroup";
 import CreateMatch from "../matches/createMatch";
 import CreateGroup from "./createGroup";
 
-const ListGroups = ({ allGroups, setGroupsChange }) => {
+const ListGroups = () => {
   const [groups, setGroups] = useState([]);
+  const [groupChange, setGroupChange] = useState(false);
 
-  //delete group function
+  const getGroups = async () => {
+    try {
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("token", localStorage.token);
+
+      const response = await fetch(`/api/group/listgroups/`, {
+        method: "GET",
+        headers: myHeaders,
+      });
+      const parseData = await response.json();
+
+      setGroups(parseData);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
 
   useEffect(() => {
-    setGroups(allGroups);
-  }, [allGroups]);
+    getGroups();
+  }, [groupChange]);
 
   return (
     <Fragment>
@@ -36,13 +53,11 @@ const ListGroups = ({ allGroups, setGroupsChange }) => {
                     {
                       <EditGroup
                         group={group}
-                        setGroupsChange={setGroupsChange}
+                        groupChange={groupChange}
+                        setGroupChange={setGroupChange}
                       />
                     }
-                    <CreateMatch
-                      group={group}
-                      setGroupsChange={setGroupsChange}
-                    />
+                    <CreateMatch group={group} />
                     <button className="btn btn-secondary mx-1">
                       📊{" "}
                       <span className="d-none d-md-inline-block">Ranking</span>
@@ -73,7 +88,10 @@ const ListGroups = ({ allGroups, setGroupsChange }) => {
               data-bs-parent="#accordionNewGroup"
             >
               <div className="accordion-body">
-                <CreateGroup setGroupsChange={setGroupsChange}></CreateGroup>
+                <CreateGroup
+                  groupChange={groupChange}
+                  setGroupChange={setGroupChange}
+                ></CreateGroup>
               </div>
             </div>
           </div>

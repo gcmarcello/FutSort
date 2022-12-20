@@ -3,166 +3,8 @@ const { json } = require("express");
 const pool = require("../db");
 const authorization = require("../middleware/Authorization");
 
-// Get list of matches
-router.get("/listmatches", authorization, async (req, res) => {
-  try {
-    const matches = await pool.query(
-      "SELECT * FROM matches AS m LEFT JOIN groups AS g ON m.group_id = g.group_id WHERE g.user_id = $1 ORDER BY m.match_status ASC, m.match_date DESC",
-      [req.user]
-    );
-    res.json(matches.rows);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json("Server Error");
-  }
-});
-
-// Get list of players in match (PUBLIC)
-router.get("/listmatches/:id/", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const matches = await pool.query(
-      "SELECT * FROM matches_players AS mp LEFT JOIN matches AS m ON mp.match_id = m.match_id LEFT JOIN groups AS g ON m.group_id = g.group_id LEFT JOIN players as p ON p.player_id = mp.player_id WHERE mp.match_id = $1 ORDER BY p.player_name ASC, m.match_date DESC",
-      [id]
-    );
-    for (let i = 0; i < matches.rows.length; i++) {
-      let dateToParse = new Date(matches.rows[i].match_date);
-      let dateToParseDay = String(dateToParse.getDate()).padStart(2, 0);
-      let dateToParseMonth = String(dateToParse.getMonth() + 1).padStart(2, 0);
-      let dateToParseYear = String(dateToParse.getFullYear());
-      matches.rows[
-        i
-      ].formattedDate = `${dateToParseDay}/${dateToParseMonth}/${dateToParseYear}`;
-    }
-    const responseData = matches.rows;
-    const responsePlayersPerTeam = responseData[0].match_playersperteam;
-    const responseStatus = responseData[0].match_status;
-    const responseNumberOfTeams = responseData[0].match_numofteams;
-
-    res.json({
-      responseData,
-      responsePlayersPerTeam,
-      responseNumberOfTeams,
-      responseStatus,
-    });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json("Server Error");
-  }
-});
-
-// Get list of players in match
-router.get("/editmatches/:id/", authorization, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const matches = await pool.query(
-      "SELECT * FROM matches_players AS mp LEFT JOIN matches AS m ON mp.match_id = m.match_id LEFT JOIN groups AS g ON m.group_id = g.group_id LEFT JOIN players as p ON p.player_id = mp.player_id WHERE mp.match_id = $1 AND g.user_id = $2 ORDER BY p.player_name ASC, m.match_date DESC",
-      [id, req.user]
-    );
-    for (let i = 0; i < matches.rows.length; i++) {
-      let dateToParse = new Date(matches.rows[i].match_date);
-      let dateToParseDay = String(dateToParse.getDate()).padStart(2, 0);
-      let dateToParseMonth = String(dateToParse.getMonth() + 1).padStart(2, 0);
-      let dateToParseYear = String(dateToParse.getFullYear());
-      matches.rows[
-        i
-      ].formattedDate = `${dateToParseDay}/${dateToParseMonth}/${dateToParseYear}`;
-    }
-    const responseData = matches.rows;
-    const responsePlayersPerTeam = responseData[0].match_playersperteam;
-    const responseStatus = responseData[0].match_status;
-    const responseNumberOfTeams = responseData[0].match_numofteams;
-
-    res.json({
-      responseData,
-      responsePlayersPerTeam,
-      responseNumberOfTeams,
-      responseStatus,
-    });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json("Server Error");
-  }
-});
-
-// Update values from match
-router.put("/editmatches/:id/", authorization, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const matchStats = req.body;
-    const userID = req.user;
-    let responseData = [];
-
-    for (let i = 0; i < matchStats.length; i++) {
-      const updateMatch = await pool.query(
-        "UPDATE matches_players SET match_player_goals = $1, match_player_assists = $2 WHERE matchplayer_id = $3 RETURNING *",
-        [
-          matchStats[i].match_player_goals,
-          matchStats[i].match_player_assists,
-          matchStats[i].matchplayer_id,
-        ]
-      );
-      responseData.push(...updateMatch.rows);
-    }
-
-    const matchStatus = await pool.query(
-      "SELECT match_status FROM matches AS m WHERE m.match_id = $1",
-      [id]
-    );
-    const responseStatus = matchStatus.rows[0].match_status;
-    return res.json({ responseData, responseStatus });
-  } catch (err) {
-    console.error(err.message);
-  }
-});
-
-// Save match
-router.put("/savematch/:id/", authorization, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const matchStats = req.body;
-    const userID = req.user;
-    let responseData = [];
-
-    for (let i = 0; i < matchStats.length; i++) {
-      const updateMatch = await pool.query(
-        "UPDATE players SET player_goals = player_goals + $1, player_assists = player_assists + $2, player_matches = player_matches + 1 WHERE player_id = $3 RETURNING *",
-        [
-          matchStats[i].match_player_goals,
-          matchStats[i].match_player_assists,
-          matchStats[i].player_id,
-        ]
-      );
-      responseData.push(...updateMatch.rows);
-    }
-    const finishMatch = await pool.query(
-      "UPDATE matches SET match_status = $1 WHERE match_id = $2",
-      [true, matchStats[0].match_id]
-    );
-
-    return res.json(responseData);
-  } catch (err) {
-    console.error(err.message);
-  }
-});
-
-// Get list of players in group (PUBLIC)
-router.get("/ranking/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const players = await pool.query(
-      "SELECT DISTINCT player_id,player_name,player_goals,player_assists,player_matches,player_stars FROM players AS p INNER JOIN groups AS g ON p.group_id = $1 ORDER BY player_goals DESC",
-      [id]
-    );
-    res.json(players.rows);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json("Server Error");
-  }
-});
-
 // Retrieve Players for Match Pick
-router.get("/creatematch/:id", authorization, async (req, res) => {
+router.get("/creatematch/:id/playerlist", authorization, async (req, res) => {
   try {
     const { id } = req.params;
     const players = await pool.query(
@@ -171,7 +13,7 @@ router.get("/creatematch/:id", authorization, async (req, res) => {
     );
     res.json(players.rows);
   } catch (err) {
-    console.error(err.message);
+    console.log(err.message);
     res.status(500).json("Server Error");
   }
 });
@@ -308,8 +150,184 @@ router.post("/creatematch/", authorization, async (req, res) => {
     }
     res.json(matchId);
   } catch (err) {
-    console.error(err.message);
+    console.log(err.message);
     res.status(500).json("Server Error");
+  }
+});
+
+// Get list of matches
+router.get("/listmatches", authorization, async (req, res) => {
+  try {
+    const matches = await pool.query(
+      "SELECT * FROM matches AS m LEFT JOIN groups AS g ON m.group_id = g.group_id WHERE g.user_id = $1 ORDER BY m.match_status ASC, m.match_date DESC",
+      [req.user]
+    );
+    res.json(matches.rows);
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).json("Server Error");
+  }
+});
+
+// Get list of players in match (View/Edit pages) (PUBLIC)
+router.get("/listmatchplayers/:id/", async (req, res) => {
+  try {
+    const { id } = req.params;
+    var responseUserAuth;
+
+    const validateUser = await pool.query(
+      "SELECT DISTINCT * FROM matches AS m LEFT JOIN groups AS g ON m.group_id = g.group_id WHERE m.match_id = $1 AND g.user_id = $2",
+      [id, req.user]
+    );
+
+    validateUser.rows.length < 1
+      ? (responseUserAuth = false)
+      : (responseUserAuth = true);
+
+    const matches = await pool.query(
+      "SELECT * FROM matches_players AS mp LEFT JOIN matches AS m ON mp.match_id = m.match_id LEFT JOIN groups AS g ON m.group_id = g.group_id LEFT JOIN players as p ON p.player_id = mp.player_id WHERE mp.match_id = $1 ORDER BY p.player_name ASC, m.match_date DESC",
+      [id]
+    );
+
+    for (let i = 0; i < matches.rows.length; i++) {
+      let dateToParse = new Date(matches.rows[i].match_date);
+      let dateToParseDay = String(dateToParse.getDate()).padStart(2, 0);
+      let dateToParseMonth = String(dateToParse.getMonth() + 1).padStart(2, 0);
+      let dateToParseYear = String(dateToParse.getFullYear());
+      matches.rows[
+        i
+      ].formattedDate = `${dateToParseDay}/${dateToParseMonth}/${dateToParseYear}`;
+    }
+
+    const responseData = matches.rows;
+    const responsePlayersPerTeam = responseData[0].match_playersperteam;
+    const responseStatus = responseData[0].match_status;
+    const responseNumberOfTeams = responseData[0].match_numofteams;
+
+    res.json({
+      responseData,
+      responsePlayersPerTeam,
+      responseNumberOfTeams,
+      responseStatus,
+      responseUserAuth,
+    });
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).json("Server Error");
+  }
+});
+
+// Get list of players in match (View/Edit pages)
+router.get("/listmatchplayers/edit/:id/", authorization, async (req, res) => {
+  try {
+    const { id } = req.params;
+    var responseUserAuth;
+
+    const validateUser = await pool.query(
+      "SELECT DISTINCT * FROM matches AS m LEFT JOIN groups AS g ON m.group_id = g.group_id WHERE m.match_id = $1 AND g.user_id = $2",
+      [id, req.user]
+    );
+
+    validateUser.rows.length < 1
+      ? (responseUserAuth = false)
+      : (responseUserAuth = true);
+
+    const matches = await pool.query(
+      "SELECT * FROM matches_players AS mp LEFT JOIN matches AS m ON mp.match_id = m.match_id LEFT JOIN groups AS g ON m.group_id = g.group_id LEFT JOIN players as p ON p.player_id = mp.player_id WHERE mp.match_id = $1 ORDER BY p.player_name ASC, m.match_date DESC",
+      [id]
+    );
+
+    for (let i = 0; i < matches.rows.length; i++) {
+      let dateToParse = new Date(matches.rows[i].match_date);
+      let dateToParseDay = String(dateToParse.getDate()).padStart(2, 0);
+      let dateToParseMonth = String(dateToParse.getMonth() + 1).padStart(2, 0);
+      let dateToParseYear = String(dateToParse.getFullYear());
+      matches.rows[
+        i
+      ].formattedDate = `${dateToParseDay}/${dateToParseMonth}/${dateToParseYear}`;
+    }
+
+    const responseData = matches.rows;
+    const responsePlayersPerTeam = responseData[0].match_playersperteam;
+    const responseStatus = responseData[0].match_status;
+    const responseNumberOfTeams = responseData[0].match_numofteams;
+
+    res.json({
+      responseData,
+      responsePlayersPerTeam,
+      responseNumberOfTeams,
+      responseStatus,
+      responseUserAuth,
+    });
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).json("Server Error");
+  }
+});
+
+// Update values from match
+router.put("/editmatch/:id/", authorization, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const matchStats = req.body;
+    const userID = req.user;
+    let responseData = [];
+
+    const validateUser = await pool.query(
+      "SELECT DISTINCT * FROM matches AS m LEFT JOIN groups AS g ON m.group_id = g.group_id WHERE m.match_id=$1 AND g.user_id = $2",
+      [id, req.user]
+    );
+
+    for (let i = 0; i < matchStats.length; i++) {
+      const updateMatch = await pool.query(
+        "UPDATE matches_players SET match_player_goals = $1, match_player_assists = $2 WHERE matchplayer_id = $3 RETURNING *",
+        [
+          matchStats[i].match_player_goals,
+          matchStats[i].match_player_assists,
+          matchStats[i].matchplayer_id,
+        ]
+      );
+      responseData.push(...updateMatch.rows);
+    }
+
+    const matchStatus = await pool.query(
+      "SELECT match_status FROM matches AS m WHERE m.match_id = $1",
+      [id]
+    );
+    const responseStatus = matchStatus.rows[0].match_status;
+    return res.json({ responseData, responseStatus });
+  } catch (err) {
+    console.log(err.message);
+  }
+});
+
+// Save match
+router.put("/savematch/:id/", authorization, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const matchStats = req.body;
+    const userID = req.user;
+    let responseData = [];
+
+    for (let i = 0; i < matchStats.length; i++) {
+      const updateMatch = await pool.query(
+        "UPDATE players SET player_goals = player_goals + $1, player_assists = player_assists + $2, player_matches = player_matches + 1 WHERE player_id = $3 RETURNING *",
+        [
+          matchStats[i].match_player_goals,
+          matchStats[i].match_player_assists,
+          matchStats[i].player_id,
+        ]
+      );
+      responseData.push(...updateMatch.rows);
+    }
+    const finishMatch = await pool.query(
+      "UPDATE matches SET match_status = $1 WHERE match_id = $2",
+      [true, matchStats[0].match_id]
+    );
+
+    return res.json(responseData);
+  } catch (err) {
+    console.log(err.message);
   }
 });
 

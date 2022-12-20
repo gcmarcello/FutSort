@@ -12,17 +12,14 @@ const ListGroups = ({}) => {
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
 
-      const response = await fetch(
-        `http://192.168.68.106:5000/match/creatematch/${id}/`,
-        {
-          method: "GET",
-          headers: myHeaders,
-        }
-      );
+      const response = await fetch(`/match/creatematch/${id}/`, {
+        method: "GET",
+        headers: myHeaders,
+      });
       const parseData = await response.json();
       setPlayerList(parseData);
     } catch (err) {
-      console.error(err.message);
+      console.log(err.message);
     }
   };
 

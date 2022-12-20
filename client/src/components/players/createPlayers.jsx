@@ -12,21 +12,18 @@ const CreateGroup = ({ setGroupsChange }) => {
       myHeaders.append("token", localStorage.token);
 
       const body = { nameGroup };
-      const response = await fetch(
-        "http://192.168.68.106:5000/dashboard/groups",
-        {
-          method: "POST",
-          headers: myHeaders,
-          body: JSON.stringify(body),
-        }
-      );
+      const response = await fetch("/groups/groups", {
+        method: "POST",
+        headers: myHeaders,
+        body: JSON.stringify(body),
+      });
 
       const parseResponse = await response.json();
       setGroupsChange(true);
       setnameGroup("");
       console.log(parseResponse);
     } catch (err) {
-      console.error(err.message);
+      console.log(err.message);
     }
   };
   return (

@@ -1,9 +1,9 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-import Loading from "../Loading";
+import Loading from "../utils/Loading";
 
-const ViewMatch = ({ isAuthenticated }) => {
+const ViewMatch = () => {
   let { id } = useParams();
   const [matchStats, setMatchStats] = useState([]);
   const [submitStats, setSubmitStats] = useState([]);
@@ -24,14 +24,12 @@ const ViewMatch = ({ isAuthenticated }) => {
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
 
-      const res = await fetch(
-        `http://192.168.68.106:5000/match/listmatches/${id}`,
-        {
-          method: "GET",
-          headers: myHeaders,
-        }
-      );
+      const res = await fetch(`/api/match/listmatchplayers/${id}`, {
+        method: "GET",
+        headers: myHeaders,
+      });
       const parseData = await res.json();
+
       setMatchStatus(parseData.responseStatus);
       setMatchStats(parseData.responseData);
 
@@ -45,7 +43,7 @@ const ViewMatch = ({ isAuthenticated }) => {
       setSubmitStats(parseData.responseData);
       setNumberOfTeams(parseData.responseNumberOfTeams);
     } catch (err) {
-      console.error(err.message);
+      console.log(err.message);
     }
   };
 
@@ -75,7 +73,6 @@ const ViewMatch = ({ isAuthenticated }) => {
 
   useEffect(() => {
     getTeams();
-    console.log(teams);
     if (teams.length < 3) {
       setTeamCardWidth({ width: "50%", flexDirection: "column" });
     } else {

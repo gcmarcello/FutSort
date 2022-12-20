@@ -1,11 +1,12 @@
 import React, { Fragment, useEffect, useState } from "react";
 
-const CreateGroup = ({ setGroupsChange }) => {
+const CreateGroup = ({ group, groupChange, setGroupChange }) => {
   const [nameGroup, setnameGroup] = useState("");
   const [buttonState, setButtonState] = useState(true);
 
   const onSubmitForm = async (e) => {
     e.preventDefault();
+    setGroupChange(true);
     try {
       const myHeaders = new Headers();
 
@@ -13,21 +14,18 @@ const CreateGroup = ({ setGroupsChange }) => {
       myHeaders.append("token", localStorage.token);
 
       const body = { nameGroup };
-      const response = await fetch(
-        "http://192.168.68.106:5000/dashboard/groups",
-        {
-          method: "POST",
-          headers: myHeaders,
-          body: JSON.stringify(body),
-        }
-      );
+      const response = await fetch("/api/group/creategroup", {
+        method: "POST",
+        headers: myHeaders,
+        body: JSON.stringify(body),
+      });
 
+      // eslint-disable-next-line
       const parseResponse = await response.json();
-      setGroupsChange(true);
       setnameGroup("");
-      console.log(parseResponse);
+      setGroupChange(false);
     } catch (err) {
-      console.error(err.message);
+      console.log(err.message);
     }
   };
 

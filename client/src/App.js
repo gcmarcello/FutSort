@@ -12,11 +12,14 @@ import Home from "./components/Home";
 import ViewMatch from "./components/matches/viewMatch";
 import EditMatch from "./components/matches/editMatch";
 import Error404Page from "./components/404";
-import Loading from "./components/Loading";
+import Loading from "./components/utils/Loading";
 import NavBar from "./components/utils/navbar";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // eslint-disable-next-line
+  const [name, setName] = useState("");
+  const [allGroups, setAllGroups] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const isAuth = async () => {
@@ -27,19 +30,16 @@ function App() {
         const myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
         myHeaders.append("token", localStorage.token);
-        const response = await fetch(
-          "http://192.168.68.106:5000/auth/is-verify",
-          {
-            method: "GET",
-            headers: myHeaders,
-          }
-        );
+        const response = await fetch("/api/auth/authentication", {
+          method: "GET",
+          headers: myHeaders,
+        });
         const parseRes = await response.json();
         parseRes === true
           ? setIsAuthenticated(true)
           : setIsAuthenticated(false);
       } catch (err) {
-        console.error(err.message);
+        console.log(err.message);
       }
     } else {
       setIsAuthenticated(false);
@@ -48,8 +48,27 @@ function App() {
     setIsLoading(false);
   };
 
+  /* const getProfile = async () => {
+    try {
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("token", localStorage.token);
+
+      const res = await fetch("/api/auth/getprofile", {
+        method: "GET",
+        headers: myHeaders,
+      });
+
+      const parseData = await res.json();
+      setAllGroups(parseData);
+    } catch (err) {
+      console.log(err.message);
+    }
+  }; */
+
   useEffect(() => {
     isAuth();
+    /* getProfile(); */
   }, []);
 
   return isLoading ? (
@@ -59,6 +78,7 @@ function App() {
       <NavBar
         isAuthenticated={isAuthenticated}
         setIsAuthenticated={setIsAuthenticated}
+        name={name}
       />
       <Fragment>
         <ToastContainer
@@ -76,6 +96,7 @@ function App() {
         <Router>
           <Routes>
             {/* PUBLIC ROUTES */}
+
             <Route
               exact
               path="/"
@@ -101,6 +122,8 @@ function App() {
                   <Dashboard
                     isAuthenticated={isAuthenticated}
                     setIsAuthenticated={setIsAuthenticated}
+                    allGroups={allGroups}
+                    setAllGroups={setAllGroups}
                   />
                 ) : (
                   <Login setIsAuthenticated={setIsAuthenticated} />
@@ -113,7 +136,7 @@ function App() {
                 isAuthenticated ? (
                   <EditMatch isAuthenticated={isAuthenticated} />
                 ) : (
-                  <Login setIsAuthenticated={setIsAuthenticated} />
+                  <ViewMatch />
                 )
               }
             />
