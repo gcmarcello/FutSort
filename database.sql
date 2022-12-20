@@ -1,5 +1,7 @@
 CREATE DATABASE futsort;
 
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE users(
     user_id UUID DEFAULT UUID_generate_v4(),
     user_name VARCHAR(255) NOT NULL,

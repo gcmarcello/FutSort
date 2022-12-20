@@ -19,15 +19,8 @@ app.use("/api/player", require("./routes/player"));
 // Match Routes
 app.use("/api/match", require("./routes/match"));
 
-/* React Routes */
-// Serve react files
-app.use(express.static(path.join(__dirname, "client/build")));
-
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "client/build")));
-  app.get("/dashboard", function (req, res) {
-    res.sendFile(path.join(__dirname, "client/build", "index.html"));
-  });
 }
 
 app.listen(port, () => {
