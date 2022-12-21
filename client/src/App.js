@@ -106,7 +106,16 @@ function App() {
             <Route
               exact
               path="/register"
-              element={<Register setIsAuthenticated={setIsAuthenticated} />}
+              element={
+                isAuthenticated ? (
+                  <Dashboard
+                    isAuthenticated={isAuthenticated}
+                    setIsAuthenticated={setIsAuthenticated}
+                  />
+                ) : (
+                  <Register />
+                )
+              }
             />
             <Route
               exact
