@@ -1,9 +1,10 @@
 import React, { Fragment, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Register = ({ setIsAuthenticated }) => {
+  const navigate = useNavigate();
   const [inputs, setInputs] = useState({
     email: "",
     password: "",
@@ -28,6 +29,7 @@ const Register = ({ setIsAuthenticated }) => {
       const parseRes = await response.json();
       if (parseRes.token) {
         localStorage.setItem("token", parseRes.token);
+
         setIsAuthenticated(true);
         toast.success("Login efetuado!", { theme: "colored" });
       } else {
