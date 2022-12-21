@@ -17,6 +17,7 @@ const Register = ({ setIsAuthenticated }) => {
     setInputs({ ...inputs, [e.target.name]: e.target.value });
   };
 
+  // Comment
   const onSubmitForm = async (e) => {
     e.preventDefault();
     const body = { email, name, password };
