@@ -26,8 +26,15 @@ router.post("/register", validInfo, async (req, res) => {
         "SELECT * FROM users WHERE user_email = $1",
         [email]
       );
+      const userName = await pool.query(
+        "SELECT * FROM users WHERE user_name = $1",
+        [name]
+      );
       if (userEmail.rows.length !== 0) {
-        return res.status(401).json("Email já registrado");
+        return res.status(401).json("Email já registrado.");
+      }
+      if (userName.rows.length !== 0) {
+        return res.status(401).json("Usuário já registrado.");
       }
 
       // Encrypting password

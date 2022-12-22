@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
@@ -12,6 +12,7 @@ const Register = ({ setIsAuthenticated }) => {
   });
   const [captchaToken, setCaptchaToken] = useState("");
   const [submitButton, setSubmitButton] = useState(true);
+  const captchaComponent = useRef();
 
   const { email, password, name } = inputs;
 
@@ -42,6 +43,8 @@ const Register = ({ setIsAuthenticated }) => {
         toast.success("Login efetuado!", { theme: "colored" });
       } else {
         setIsAuthenticated(false);
+        captchaComponent.current.resetCaptcha();
+        setCaptchaToken("");
         toast.error(parseRes, { theme: "colored" });
       }
     } catch (err) {
@@ -95,6 +98,7 @@ const Register = ({ setIsAuthenticated }) => {
                 onChange={(e) => onChange(e)}
               />
               <HCaptcha
+                ref={captchaComponent}
                 sitekey={process.env.REACT_APP_HCAPTCHA_KEY}
                 onVerify={(captchaToken) => setCaptchaToken(captchaToken)}
                 onExpire={(e) => setCaptchaToken("")}
