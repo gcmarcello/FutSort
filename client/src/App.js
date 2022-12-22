@@ -49,31 +49,11 @@ function App() {
     } else {
       setIsAuthenticated(false);
     }
-    /* console.log(isAuthenticated); */
     setIsLoading(false);
   };
 
-  /* const getProfile = async () => {
-    try {
-      const myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/json");
-      myHeaders.append("token", localStorage.token);
-
-      const res = await fetch("/api/auth/getprofile", {
-        method: "GET",
-        headers: myHeaders,
-      });
-
-      const parseData = await res.json();
-      setAllGroups(parseData);
-    } catch (err) {
-      console.log(err.message);
-    }
-  }; */
-
   useEffect(() => {
     isAuth();
-    /* getProfile(); */
   }, []);
 
   return isLoading ? (

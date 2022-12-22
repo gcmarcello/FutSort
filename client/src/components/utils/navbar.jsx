@@ -5,19 +5,21 @@ const NavBar = ({ isAuthenticated, setIsAuthenticated }) => {
   const [name, setName] = useState("");
 
   const getProfile = async () => {
-    try {
-      const myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/json");
-      myHeaders.append("token", localStorage.token);
+    if (localStorage.token) {
+      try {
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        myHeaders.append("token", localStorage.token);
 
-      const response = await fetch(`/api/auth/getprofile/`, {
-        method: "GET",
-        headers: myHeaders,
-      });
-      const parseData = await response.json();
-      setName(parseData[0].user_name);
-    } catch (err) {
-      console.log(err.message);
+        const response = await fetch(`/api/auth/getprofile/`, {
+          method: "GET",
+          headers: myHeaders,
+        });
+        const parseData = await response.json();
+        setName(parseData[0].user_name);
+      } catch (err) {
+        console.log(err.message);
+      }
     }
   };
 

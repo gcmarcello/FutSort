@@ -1,15 +1,18 @@
-import React, { Fragment, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { Fragment, useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 import "react-toastify/dist/ReactToastify.css";
 
 const Register = ({ setIsAuthenticated }) => {
-  const navigate = useNavigate();
   const [inputs, setInputs] = useState({
     email: "",
     password: "",
     name: "",
   });
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [submitButton, setSubmitButton] = useState(true);
+  const [error, setError] = useState("");
 
   const { email, password, name } = inputs;
 
@@ -20,7 +23,12 @@ const Register = ({ setIsAuthenticated }) => {
   // Comment
   const onSubmitForm = async (e) => {
     e.preventDefault();
-    const body = { email, name, password };
+    if (!captchaToken) {
+      toast.error("Por favor, verifique o Captcha.", { theme: "colored" });
+      return;
+    }
+    setError("");
+    const body = { captchaToken, email, name, password };
     try {
       const response = await fetch("/api/auth/register", {
         method: "POST",
@@ -41,6 +49,12 @@ const Register = ({ setIsAuthenticated }) => {
       console.log(err.message);
     }
   };
+
+  useEffect(() => {
+    if (captchaToken) {
+      setSubmitButton(false);
+    }
+  }, [captchaToken]);
 
   return (
     <Fragment>
@@ -74,7 +88,17 @@ const Register = ({ setIsAuthenticated }) => {
             value={password}
             onChange={(e) => onChange(e)}
           />
-          <button className="btn btn-block btn-success form-control">
+          <div>
+            <HCaptcha
+              sitekey={process.env.REACT_APP_HCAPTCHA_KEY}
+              onVerify={(captchaToken) => setCaptchaToken(captchaToken)}
+              onExpire={(e) => setCaptchaToken("")}
+            />
+          </div>
+          <button
+            className="btn btn-block btn-success form-control"
+            disabled={submitButton}
+          >
             Registrar
           </button>
         </form>
