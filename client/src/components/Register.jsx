@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, useRef } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
@@ -12,7 +12,6 @@ const Register = ({ setIsAuthenticated }) => {
   });
   const [captchaToken, setCaptchaToken] = useState("");
   const [submitButton, setSubmitButton] = useState(true);
-  const [error, setError] = useState("");
 
   const { email, password, name } = inputs;
 
@@ -27,7 +26,7 @@ const Register = ({ setIsAuthenticated }) => {
       toast.error("Por favor, verifique o Captcha.", { theme: "colored" });
       return;
     }
-    setError("");
+
     const body = { captchaToken, email, name, password };
     try {
       const response = await fetch("/api/auth/register", {
