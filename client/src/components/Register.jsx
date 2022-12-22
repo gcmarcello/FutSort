@@ -57,51 +57,55 @@ const Register = ({ setIsAuthenticated }) => {
 
   return (
     <Fragment>
-      <h1 className="my-3 text-center">Register</h1>
-      <div className="container-sm bg-light shadow-sm bg-gradient p-5 my-3 rounded">
-        <form onSubmit={onSubmitForm}>
-          <input
-            type="text"
-            name="name"
-            id="name"
-            placeholder="Nome de Usuário"
-            className="form-control my-3"
-            value={name}
-            onChange={(e) => onChange(e)}
-          />
-          <input
-            type="email"
-            name="email"
-            id="email"
-            placeholder="Email"
-            className="form-control my-3"
-            value={email}
-            onChange={(e) => onChange(e)}
-          />
-          <input
-            type="password"
-            name="password"
-            id="password"
-            className="form-control my-3"
-            placeholder="Senha"
-            value={password}
-            onChange={(e) => onChange(e)}
-          />
-          <div>
-            <HCaptcha
-              sitekey={process.env.REACT_APP_HCAPTCHA_KEY}
-              onVerify={(captchaToken) => setCaptchaToken(captchaToken)}
-              onExpire={(e) => setCaptchaToken("")}
-            />
+      <h1 className="my-3 text-center">Registro</h1>
+      <div
+        className="row justify-content-center"
+        style={{ "--bs-gutter-x": "0" }}
+      >
+        <div className="container d-flex justify-content-center">
+          <div className="bg-light shadow bg-gradient rounded p-4 ">
+            <form onSubmit={onSubmitForm}>
+              <input
+                type="text"
+                name="name"
+                id="name"
+                placeholder="Nome de Usuário"
+                className="form-control"
+                value={name}
+                onChange={(e) => onChange(e)}
+              />
+              <input
+                type="email"
+                name="email"
+                id="email"
+                placeholder="Email"
+                className="form-control my-3"
+                value={email}
+                onChange={(e) => onChange(e)}
+              />
+              <input
+                type="password"
+                name="password"
+                id="password"
+                className="form-control my-3"
+                placeholder="Senha"
+                value={password}
+                onChange={(e) => onChange(e)}
+              />
+              <HCaptcha
+                sitekey={process.env.REACT_APP_HCAPTCHA_KEY}
+                onVerify={(captchaToken) => setCaptchaToken(captchaToken)}
+                onExpire={(e) => setCaptchaToken("")}
+              />
+              <button
+                className="btn btn-block btn-success form-control"
+                disabled={submitButton}
+              >
+                Registrar
+              </button>
+            </form>
           </div>
-          <button
-            className="btn btn-block btn-success form-control"
-            disabled={submitButton}
-          >
-            Registrar
-          </button>
-        </form>
-        <Link to="/dashboard">Login</Link>
+        </div>
       </div>
     </Fragment>
   );

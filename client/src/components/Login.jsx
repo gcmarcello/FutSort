@@ -43,36 +43,43 @@ const Login = ({ setIsAuthenticated }) => {
     <Fragment>
       <div>
         <h1 className="my-3 text-center">Login</h1>
-        <div className="container-sm bg-light shadow-sm bg-gradient p-5 my-3 rounded">
-          <form onSubmit={onSubmitForm} action="#">
-            <label htmlFor="name">Nome de Usuário</label>
-            <input
-              type="text"
-              name="name"
-              id="name"
-              placeholder="Usuário"
-              className="form-control form-control-lg mb-3"
-              value={name}
-              onChange={(e) => onChange(e)}
-            />
-            <label htmlFor="password">Senha</label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              placeholder="Senha"
-              className="form-control form-control-lg mb-3"
-              value={password}
-              onChange={(e) => onChange(e)}
-            />
-            <input
-              type="submit"
-              className="form-control btn btn-success"
-              value={"Enviar"}
-            />
-            <br />
-            <Link to="/register">Register</Link>
-          </form>
+        <div
+          className="row justify-content-center"
+          style={{ "--bs-gutter-x": "0" }}
+        >
+          <div className="container d-flex justify-content-center">
+            <div className="bg-light shadow bg-gradient rounded p-4 ">
+              <form onSubmit={onSubmitForm} action="#">
+                <label htmlFor="name">Nome de Usuário</label>
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  placeholder="Usuário"
+                  className="form-control form-control-lg mb-3"
+                  value={name}
+                  onChange={(e) => onChange(e)}
+                />
+                <label htmlFor="password">Senha</label>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  placeholder="Senha"
+                  className="form-control form-control-lg mb-3"
+                  value={password}
+                  onChange={(e) => onChange(e)}
+                />
+                <input
+                  type="submit"
+                  className="form-control btn btn-success"
+                  value={"Enviar"}
+                />
+                <br />
+                <Link to="/register">Register</Link>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     </Fragment>
