@@ -48,11 +48,12 @@ const Register = ({ setIsAuthenticated }) => {
       console.log(err.message);
     }
   };
-  console.log(process.env.REACT_APP_HCAPTCHA_KEY);
 
   useEffect(() => {
     if (captchaToken) {
       setSubmitButton(false);
+    } else {
+      setSubmitButton(true);
     }
   }, [captchaToken]);
 
