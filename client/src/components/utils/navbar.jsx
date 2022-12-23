@@ -104,6 +104,11 @@ const NavBar = ({ isAuthenticated, setIsAuthenticated }) => {
                       Login
                     </a>
                   </li>
+                  <li>
+                    <a className="btn btn-secondary " href="/register">
+                      Registrar
+                    </a>
+                  </li>
                 </ul>
               )}
             </div>
