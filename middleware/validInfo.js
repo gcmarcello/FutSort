@@ -9,7 +9,7 @@ module.exports = async (req, res, next) => {
   }
 
   function validPassword(userPassword) {
-    return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(userPassword);
+    return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/.test(userPassword);
   }
 
   if (req.path === "/register") {
@@ -20,23 +20,14 @@ module.exports = async (req, res, next) => {
     } else if (!validPassword(password)) {
       return res.status(400).json("Senha inválida.");
     }
-    const verifyCaptcha = await verify(
-      process.env.NODE_HCAPTCHA_SECRET,
-      captchaToken
-    );
+    const verifyCaptcha = await verify(process.env.NODE_HCAPTCHA_SECRET, captchaToken);
 
     if (verifyCaptcha.success != true) {
       return res.status(400).json("Por favor, verifique o Captcha.");
     }
 
-    const usernameCheck = await pool.query(
-      "SELECT * FROM users WHERE user_name = $1",
-      [name]
-    );
-    const emailCheck = await pool.query(
-      "SELECT * FROM users WHERE user_email = $1",
-      [email]
-    );
+    const usernameCheck = await pool.query("SELECT * FROM users WHERE user_name = $1", [name]);
+    const emailCheck = await pool.query("SELECT * FROM users WHERE user_email = $1", [email]);
 
     if (usernameCheck.rows.length !== 0) {
       return res.status(400).json("Usuário já registrado.");
