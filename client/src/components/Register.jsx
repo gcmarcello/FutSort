@@ -23,8 +23,6 @@ const Register = ({ setIsAuthenticated }) => {
   const [submitButton, setSubmitButton] = useState(true);
   const { name, email, password, confirmPassword } = inputs;
   const captchaComponent = useRef();
-  const [show, setShow] = useState(false);
-  const target = useRef(null);
 
   const displayPasswordRequirements = (criteria) => {
     return criteria ? "text-success" : "text-danger";
@@ -130,7 +128,7 @@ const Register = ({ setIsAuthenticated }) => {
                 />
               </div>
               <div>
-                <OverlayTrigger trigger="hover" placement="bottom" overlay={popover}>
+                <OverlayTrigger trigger="focus" placement="top" overlay={popover}>
                   <input
                     type="password"
                     name="password"

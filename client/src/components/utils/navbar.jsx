@@ -42,10 +42,7 @@ const NavBar = ({ isAuthenticated, setIsAuthenticated }) => {
 
   return (
     <Fragment>
-      <nav
-        className="navbar sticky-top navbar-expand-lg navbar-dark bg-success"
-        aria-label="Offcanvas navbar large"
-      >
+      <nav className="navbar sticky-top navbar-expand-md navbar-dark bg-success" aria-label="Offcanvas navbar large">
         <div className="container-fluid">
           <a className="navbar-brand" href="/">
             {name ? `FutSort - ${name}` : `FutSort`}
@@ -59,52 +56,35 @@ const NavBar = ({ isAuthenticated, setIsAuthenticated }) => {
           >
             <span className="navbar-toggler-icon"></span>
           </button>
-          <div
-            className="offcanvas offcanvas-end text-bg-dark"
-            tabIndex="-1"
-            id="offcanvasNavbar2"
-            aria-labelledby="offcanvasNavbar2Label"
-          >
+          <div className="offcanvas offcanvas-end text-bg-dark" tabIndex="-1" id="offcanvasNavbar2" aria-labelledby="offcanvasNavbar2Label">
             <div className="offcanvas-header">
               <h5 className="offcanvas-title" id="offcanvasNavbar2Label">
                 Menu Principal
               </h5>
-              <button
-                type="button"
-                className="btn-close btn-close-white"
-                data-bs-dismiss="offcanvas"
-                aria-label="Close"
-              ></button>
+              <button type="button" className="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div className="offcanvas-body">
               {isAuthenticated ? (
-                <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
+                <ul className="navbar-nav justify-content-end flex-grow-1">
                   <li className="nav-item">
-                    <a
-                      className="btn btn-outline-light me-3"
-                      aria-current="page"
-                      href="/dashboard"
-                    >
+                    <a className="btn btn-outline-light me-3" aria-current="page" href="/dashboard">
                       <i className="bi bi-house-door"></i> Painel
                     </a>
                   </li>
                   <li>
-                    <button
-                      className="btn btn-danger "
-                      onClick={(e) => logout(e)}
-                    >
+                    <button className="btn btn-danger " onClick={(e) => logout(e)}>
                       Logout
                     </button>
                   </li>
                 </ul>
               ) : (
-                <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
-                  <li>
+                <ul className="navbar-nav justify-content-end flex-grow-1 pe-3 list">
+                  <li className="mx-1 my-1">
                     <a className="btn btn-light " href="/dashboard">
                       Login
                     </a>
                   </li>
-                  <li>
+                  <li className="mx-1 my-1">
                     <a className="btn btn-secondary " href="/register">
                       Registrar
                     </a>

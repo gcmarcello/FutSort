@@ -1,11 +1,6 @@
 import "./App.css";
 import { Fragment, useEffect, useState } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -19,6 +14,7 @@ import EditMatch from "./components/matches/editMatch";
 import Error404Page from "./components/404";
 import Loading from "./components/utils/Loading";
 import NavBar from "./components/utils/navbar";
+import GroupProfile from "./components/GroupProfile";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -40,9 +36,7 @@ function App() {
           headers: myHeaders,
         });
         const parseRes = await response.json();
-        parseRes === true
-          ? setIsAuthenticated(true)
-          : setIsAuthenticated(false);
+        parseRes === true ? setIsAuthenticated(true) : setIsAuthenticated(false);
       } catch (err) {
         console.log(err.message);
       }
@@ -60,11 +54,7 @@ function App() {
     <Loading />
   ) : (
     <Fragment>
-      <NavBar
-        isAuthenticated={isAuthenticated}
-        setIsAuthenticated={setIsAuthenticated}
-        name={name}
-      />
+      <NavBar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} name={name} />
       <Fragment>
         <ToastContainer
           position="bottom-right"
@@ -92,24 +82,14 @@ function App() {
               path="/register"
               element={
                 !isAuthenticated ? (
-                  <Register
-                    isAuthenticated={isAuthenticated}
-                    setIsAuthenticated={setIsAuthenticated}
-                  />
+                  <Register isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
                 ) : (
-                  <Navigate
-                    to="/dashboard"
-                    isAuthenticated={isAuthenticated}
-                    setIsAuthenticated={setIsAuthenticated}
-                  />
+                  <Navigate to="/dashboard" isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
                 )
               }
             />
-            <Route
-              exact
-              path="/viewmatch/:id"
-              element={<ViewMatch isAuthenticated={isAuthenticated} />}
-            />
+            <Route exact path="/viewmatch/:id" element={<ViewMatch isAuthenticated={isAuthenticated} />} />
+            <Route exact path="/group/:id" element={<GroupProfile isAuthenticated={isAuthenticated} />} />
 
             {/* PROTECTED ROUTES */}
             <Route
@@ -127,16 +107,7 @@ function App() {
                 )
               }
             />
-            <Route
-              path="/editmatch/:id"
-              element={
-                isAuthenticated ? (
-                  <EditMatch isAuthenticated={isAuthenticated} />
-                ) : (
-                  <ViewMatch />
-                )
-              }
-            />
+            <Route path="/editmatch/:id" element={isAuthenticated ? <EditMatch isAuthenticated={isAuthenticated} /> : <ViewMatch />} />
 
             {/* 404 */}
             <Route path="*" element={<Error404Page />} />

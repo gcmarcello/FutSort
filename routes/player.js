@@ -21,10 +21,7 @@ router.post("/createplayer/:id", authorization, async (req, res) => {
       return res.json("Esse grupo não pertence a sua conta.");
     }
 
-    const validatePlayer = await pool.query(
-      "SELECT * FROM players AS p WHERE p.player_name = $1 AND p.group_id = $2",
-      [addPlayerName, id]
-    );
+    const validatePlayer = await pool.query("SELECT * FROM players AS p WHERE p.player_name = $1 AND p.group_id = $2", [addPlayerName, id]);
 
     console.log(validatePlayer.rows);
 
@@ -49,7 +46,7 @@ router.get("/listplayers/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const players = await pool.query(
-      "SELECT DISTINCT player_id,player_name,player_goals,player_assists,player_matches,player_stars FROM players AS p INNER JOIN groups AS g ON p.group_id = $1 ORDER BY player_goals DESC",
+      "SELECT DISTINCT player_id,player_name,player_goals,player_assists,player_matches,player_stars,player_user,user_name FROM players AS p INNER JOIN groups AS g ON p.group_id = $1 LEFT JOIN users AS u ON u.user_id = p.player_user ORDER BY player_goals DESC",
       [id]
     );
     res.json(players.rows);

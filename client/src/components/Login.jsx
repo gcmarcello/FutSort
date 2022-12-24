@@ -1,5 +1,4 @@
-import React, { Fragment, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { Fragment, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -9,10 +8,19 @@ const Login = ({ setIsAuthenticated }) => {
     password: "",
   });
   const { name, password } = inputs;
+  const [submitButton, setSubmitButton] = useState(true);
 
   const onChange = (e) => {
     setInputs({ ...inputs, [e.target.name]: e.target.value });
   };
+
+  useEffect(() => {
+    if (name && password) {
+      setSubmitButton(false);
+    } else {
+      setSubmitButton(true);
+    }
+  }, [name, password]);
 
   const onSubmitForm = async (e) => {
     e.preventDefault();
@@ -43,14 +51,10 @@ const Login = ({ setIsAuthenticated }) => {
     <Fragment>
       <div>
         <h1 className="my-3 text-center">Login</h1>
-        <div
-          className="row justify-content-center"
-          style={{ "--bs-gutter-x": "0" }}
-        >
+        <div className="row justify-content-center" style={{ "--bs-gutter-x": "0" }}>
           <div className="container d-flex justify-content-center">
             <div className="bg-light shadow bg-gradient rounded p-4 ">
               <form onSubmit={onSubmitForm} action="#">
-                <label htmlFor="name">Nome de Usuário</label>
                 <input
                   type="text"
                   name="name"
@@ -60,7 +64,7 @@ const Login = ({ setIsAuthenticated }) => {
                   value={name}
                   onChange={(e) => onChange(e)}
                 />
-                <label htmlFor="password">Senha</label>
+
                 <input
                   type="password"
                   name="password"
@@ -70,13 +74,13 @@ const Login = ({ setIsAuthenticated }) => {
                   value={password}
                   onChange={(e) => onChange(e)}
                 />
-                <input
-                  type="submit"
-                  className="form-control btn btn-success"
-                  value={"Enviar"}
-                />
-                <br />
-                <Link to="/register">Register</Link>
+                <hr />
+                <div className="d-flex">
+                  <a role="button" className="form-control btn btn-secondary mx-1" href="/register">
+                    Registre-se
+                  </a>
+                  <input type="submit" className="form-control btn btn-success mx-1" value={"Login"} disabled={submitButton} />
+                </div>
               </form>
             </div>
           </div>

@@ -26,8 +26,10 @@ CREATE TABLE players(
     player_goals INTEGER,
     player_assists INTEGER,
     player_matches INTEGER,
+    player_user UUID,
     PRIMARY KEY (player_id),
-    FOREIGN KEY (group_id) REFERENCES groups(group_id)
+    FOREIGN KEY (group_id) REFERENCES groups(group_id),
+    FOREIGN KEY (player_user) REFERENCES users(user_id)
 );
 
 CREATE TABLE matches(
@@ -51,6 +53,19 @@ CREATE TABLE matches_players(
     match_player_team INTEGER,
     PRIMARY KEY (matchplayer_id),
     FOREIGN KEY (match_id) REFERENCES matches(match_id),
+    FOREIGN KEY (player_id) REFERENCES players(player_id)
+);
+
+CREATE TABLE requests(
+    request_id SERIAL NOT NULL,
+    request_status VARCHAR(255) NOT NULL,
+    request_user_id UUID NOT NULL,
+    user_name VARCHAR(255) NOT NULL,
+    group_id INTEGER NOT NULL,
+    player_id INTEGER NOT NULL,
+    PRIMARY KEY (request_id),
+    FOREIGN KEY (request_user_id) REFERENCES users(user_id),
+    FOREIGN KEY (group_id) REFERENCES groups(group_id),
     FOREIGN KEY (player_id) REFERENCES players(player_id)
 );
 

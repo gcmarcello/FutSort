@@ -50,18 +50,11 @@ const ListGroups = () => {
                   <td>{group.group_name}</td>
                   {/* <td className="d-none d-sm-table-cell">20</td> */}
                   <td>
-                    {
-                      <EditGroup
-                        group={group}
-                        groupChange={groupChange}
-                        setGroupChange={setGroupChange}
-                      />
-                    }
+                    {<EditGroup group={group} groupChange={groupChange} setGroupChange={setGroupChange} />}
                     <CreateMatch group={group} />
-                    <button className="btn btn-secondary mx-1">
-                      📊{" "}
-                      <span className="d-none d-md-inline-block">Ranking</span>
-                    </button>
+                    <a href={`/group/${group.group_id}`} className="btn btn-secondary mx-1" role="button">
+                      📊 <span className="d-none d-md-inline-block">Ranking</span>
+                    </a>
                   </td>
                 </tr>
               ))}
@@ -81,17 +74,9 @@ const ListGroups = () => {
                 Adicionar Grupo
               </button>
             </h2>
-            <div
-              id="collapseOne"
-              className="accordion-collapse collapse"
-              aria-labelledby="headingOne"
-              data-bs-parent="#accordionNewGroup"
-            >
+            <div id="collapseOne" className="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionNewGroup">
               <div className="accordion-body">
-                <CreateGroup
-                  groupChange={groupChange}
-                  setGroupChange={setGroupChange}
-                ></CreateGroup>
+                <CreateGroup groupChange={groupChange} setGroupChange={setGroupChange}></CreateGroup>
               </div>
             </div>
           </div>

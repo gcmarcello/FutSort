@@ -8,10 +8,7 @@ const authorization = require("../middleware/Authorization");
 router.post("/creategroup", authorization, async (req, res) => {
   try {
     const { nameGroup } = req.body;
-    const newGroup = await pool.query(
-      "INSERT INTO groups (user_id, group_name) VALUES($1,$2) RETURNING *",
-      [req.user, nameGroup]
-    );
+    const newGroup = await pool.query("INSERT INTO groups (user_id, group_name) VALUES($1,$2) RETURNING *", [req.user, nameGroup]);
     res.json(newGroup.rows[0]);
   } catch (err) {
     res.status(500).json(err);
@@ -21,12 +18,22 @@ router.post("/creategroup", authorization, async (req, res) => {
 // Read Groups
 router.get("/listgroups", authorization, async (req, res) => {
   try {
-    const groups = await pool.query(
-      "SELECT * FROM groups AS g WHERE g.user_id=$1",
-      [req.user]
-    );
+    const groups = await pool.query("SELECT * FROM groups AS g WHERE g.user_id=$1", [req.user]);
 
     res.json(groups.rows);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// Read Individual Group Profile
+router.get("/listgroup/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const groups = await pool.query("SELECT group_name FROM groups AS g WHERE g.group_id=$1", [id]);
+    const groupName = groups.rows[0].group_name;
+
+    res.json(groupName);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -50,10 +57,11 @@ router.put("/updategroup/:id", authorization, async (req, res) => {
     if (!validateUser.rows.length) {
       return res.json("This group does not belong to your account.");
     } else {
-      const updateGroup = await pool.query(
-        "UPDATE groups SET group_name = $1 WHERE group_id = $2 AND user_id = $3 RETURNING *",
-        [nameGroup, id, req.user]
-      );
+      const updateGroup = await pool.query("UPDATE groups SET group_name = $1 WHERE group_id = $2 AND user_id = $3 RETURNING *", [
+        nameGroup,
+        id,
+        req.user,
+      ]);
       res.json("Nome do grupo alterado!");
     }
   } catch (err) {
@@ -77,18 +85,9 @@ router.delete("/deletegroup/:id", authorization, async (req, res) => {
         "DELETE FROM matches_players USING matches_players AS mp LEFT JOIN players AS p ON p.player_id = mp.player_id WHERE group_id = $1",
         [id]
       );
-      const deleteMatches = await pool.query(
-        "DELETE FROM matches WHERE group_id = $1 RETURNING *",
-        [id]
-      );
-      const deletePlayers = await pool.query(
-        "DELETE FROM players WHERE group_id = $1 RETURNING *",
-        [id]
-      );
-      const deleteGroup = await pool.query(
-        "DELETE FROM groups WHERE group_id = $1 RETURNING *",
-        [id]
-      );
+      const deleteMatches = await pool.query("DELETE FROM matches WHERE group_id = $1 RETURNING *", [id]);
+      const deletePlayers = await pool.query("DELETE FROM players WHERE group_id = $1 RETURNING *", [id]);
+      const deleteGroup = await pool.query("DELETE FROM groups WHERE group_id = $1 RETURNING *", [id]);
       res.json("O grupo foi removido.");
     }
   } catch (err) {
