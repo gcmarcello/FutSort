@@ -45,6 +45,8 @@ app.use("/dashboard", express.static(path.join(__dirname, "client/build")));
 app.use("/editmatch/*", express.static(path.join(__dirname, "client/build")));
 // View Matches
 app.use("/viewmatch/*", express.static(path.join(__dirname, "client/build")));
+// View Groups
+app.use("/group/*", express.static(path.join(__dirname, "client/build")));
 
 app.listen(port, () => {
   console.log(
