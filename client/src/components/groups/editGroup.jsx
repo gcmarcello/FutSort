@@ -143,7 +143,7 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
   useEffect(() => {
     getPlayers();
     // eslint-disable-next-line
-  }, [playerList]);
+  }, []);
 
   useEffect(() => {
     confirmName === nameGroup ? setFinishButtonState(false) : setFinishButtonState(true);

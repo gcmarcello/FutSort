@@ -126,7 +126,15 @@ const CreateMatch = ({ group, setGroupsChange }) => {
 
   return (
     <Fragment>
-      <button type="button" className="btn btn-primary mx-1" data-bs-toggle="modal" data-bs-target={`#match-${group.group_id}`}>
+      <button
+        type="button"
+        className="btn btn-primary mx-1"
+        data-bs-toggle="modal"
+        data-bs-target={`#match-${group.group_id}`}
+        onClick={() => {
+          getPlayers();
+        }}
+      >
         ⚽<span className="d-none d-md-inline-block">Criar Partida</span>
       </button>
 
