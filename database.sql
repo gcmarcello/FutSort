@@ -44,7 +44,7 @@ CREATE TABLE seasons(
     season_score REAL NOT NULL,
     PRIMARY KEY (season_id),
     FOREIGN KEY (season_player_id) REFERENCES players(player_id),
-    FOREIGN KEY (season_group_id) REFERENCES groups(group_id),
+    FOREIGN KEY (season_group_id) REFERENCES groups(group_id)
 );
 
 CREATE TABLE matches(

@@ -143,7 +143,7 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
   useEffect(() => {
     getPlayers();
     // eslint-disable-next-line
-  }, []);
+  }, [playersChange]);
 
   useEffect(() => {
     confirmName === nameGroup ? setFinishButtonState(false) : setFinishButtonState(true);
@@ -196,7 +196,10 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
                         className="form-control"
                         id="add-player-input"
                         value={addPlayerName}
-                        onChange={(e) => setAddPlayerName(e.target.value)}
+                        onChange={(e) => {
+                          setAddPlayerName(e.target.value);
+                          setPlayersChange(true);
+                        }}
                       />
                     </div>
                     <div className="col">
