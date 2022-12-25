@@ -8,6 +8,7 @@ const authorization = require("../middleware/Authorization");
 router.post("/finishseason/:groupId", authorization, async (req, res) => {
   try {
     const { groupId } = req.params;
+    const { seasonYear } = req.body;
     const now = new Date();
 
     const validateUser = await pool.query(
@@ -53,7 +54,7 @@ router.post("/finishseason/:groupId", authorization, async (req, res) => {
             Number(groupId),
             parsedPlayers[i].player_id,
             parsedPlayers[i].player_name,
-            2022,
+            seasonYear,
             parsedPlayers[i].player_goals,
             parsedPlayers[i].player_assists,
             parsedPlayers[i].player_matches,

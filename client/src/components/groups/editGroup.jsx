@@ -10,6 +10,7 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
   // eslint-disable-next-line
   const [playersChange, setPlayersChange] = useState(false);
   const now = new Date();
+  const [seasonYear, setSeasonYear] = useState(now.getFullYear());
   const [confirmName, setConfirmName] = useState("");
   const [finishSeasonButtonState, setFinishButtonState] = useState(true);
   const [containerClass, setContainerClass] = useState("d-table");
@@ -117,9 +118,11 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
       const myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
+      const body = { seasonYear };
       const response = await fetch(`/api/season/finishseason/${id}`, {
         method: "POST",
         headers: myHeaders,
+        body: JSON.stringify(body),
       });
       const parseResponse = await response.json();
       if (parseResponse.type === "error") {
@@ -288,7 +291,7 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
                   Ano da Temporada
                 </label>
                 <div className="col-sm-10">
-                  <input className="form-control" id="season-finish" defaultValue={now.getFullYear()} />
+                  <input className="form-control" id="season-finish" value={seasonYear} onChange={(e) => setSeasonYear(e.target.value)} />
                 </div>
               </div>
               <div className="mb-3 row">

@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 // Dashboard Components
 import ListGroupMatches from "./listGroupMatches";
 import ListGroupSeasons from "./listGroupSeasons";
+import Pagination from "../../Pagination";
 
 const GroupProfile = ({ isAuthenticated }) => {
   const { id } = useParams();
@@ -18,6 +19,18 @@ const GroupProfile = ({ isAuthenticated }) => {
     player_matches: "DESC",
   });
   const [requestAvailability, setRequestAvailability] = useState(true);
+  const [filteredPlayers, setFilteredPlayers] = useState([]);
+  const [postsPerPage, setPostsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  let pageNumbers = [];
+
+  // Get current posts
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = filteredPlayers.slice(indexOfFirstPost, indexOfLastPost);
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const getGroup = async () => {
     try {
@@ -135,8 +148,20 @@ const GroupProfile = ({ isAuthenticated }) => {
     preventRequests();
     getGroup();
     getPlayers();
+
     // eslint-disable-next-line
   }, []);
+
+  useEffect(() => {
+    for (let i = 1; i <= Math.ceil(filteredPlayers.length / postsPerPage); i++) {
+      pageNumbers.push(i);
+    }
+    // eslint-disable-next-line
+  }, [postsPerPage]);
+
+  useEffect(() => {
+    setFilteredPlayers(ranking);
+  }, [ranking]);
 
   return (
     <Fragment>
@@ -190,7 +215,7 @@ const GroupProfile = ({ isAuthenticated }) => {
             </tr>
           </thead>
           <tbody className="table-borderless">
-            {ranking.map((player) => (
+            {currentPosts.map((player) => (
               <tr key={`player-row-${player.player_id}`}>
                 <td>{player.player_name}</td>
                 <td>{player.player_goals}</td>
@@ -220,6 +245,13 @@ const GroupProfile = ({ isAuthenticated }) => {
             ))}
           </tbody>
         </table>
+        <Pagination
+          postsPerPage={postsPerPage}
+          setPostsPerPage={setPostsPerPage}
+          totalPosts={ranking.length}
+          setCurrentPage={setCurrentPage}
+          paginate={paginate}
+        />
         <div className="d-flex mt-1">
           <ListGroupMatches />
           <ListGroupSeasons />
