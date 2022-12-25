@@ -180,7 +180,7 @@ const GroupProfile = ({ isAuthenticated }) => {
           <thead className="table-light">
             <tr>
               <th>
-                Jogador{" "}
+                J<span className="d-none d-md-inline">ogador</span>
                 <i
                   role="button"
                   className={`bi bi-caret-${sortDirection.player_name === "ASC" ? "up" : "down"}-fill`}
@@ -188,7 +188,7 @@ const GroupProfile = ({ isAuthenticated }) => {
                 ></i>
               </th>
               <th>
-                Gols{" "}
+                G<span className="d-none d-md-inline">ols</span>
                 <i
                   role="button"
                   className={`bi bi-caret-${sortDirection.player_goals === "ASC" ? "up" : "down"}-fill`}
@@ -196,7 +196,7 @@ const GroupProfile = ({ isAuthenticated }) => {
                 ></i>
               </th>
               <th>
-                Assists{" "}
+                A<span className="d-none d-md-inline">ssistências</span>
                 <i
                   role="button"
                   className={`bi bi-caret-${sortDirection.player_assists === "ASC" ? "up" : "down"}-fill`}
@@ -204,7 +204,7 @@ const GroupProfile = ({ isAuthenticated }) => {
                 ></i>
               </th>
               <th>
-                Partidas{" "}
+                P<span className="d-none d-md-inline">artidas</span>
                 <i
                   role="button"
                   className={`bi bi-caret-${sortDirection.player_matches === "ASC" ? "up" : "down"}-fill`}
@@ -252,7 +252,7 @@ const GroupProfile = ({ isAuthenticated }) => {
           setCurrentPage={setCurrentPage}
           paginate={paginate}
         />
-        <div className="d-flex mt-1">
+        <div className="d-flex flex-wrap mt-1">
           <ListGroupMatches />
           <ListGroupSeasons />
         </div>

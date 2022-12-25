@@ -82,7 +82,7 @@ const ListMatches = () => {
 
   return (
     <Fragment>
-      <div className="card flex-fill">
+      <div className="card flex-fill mx-1 my-1">
         <h4 className="card-header">Partidas</h4>
         <table className="table">
           <thead>

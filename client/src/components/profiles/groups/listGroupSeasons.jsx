@@ -30,7 +30,7 @@ const ListSeasons = () => {
 
   return (
     <Fragment>
-      <div className="card flex-fill mx-3">
+      <div className="card flex-fill mx-1 my-1">
         <h4 className="card-header">Últimas Temporadas</h4>
         <div className="accordion" id="accordionSeasons">
           {seasons.map((season) => (
