@@ -12,6 +12,7 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
   const now = new Date();
   const [confirmName, setConfirmName] = useState("");
   const [finishSeasonButtonState, setFinishButtonState] = useState(true);
+  const [containerClass, setContainerClass] = useState("d-table");
 
   const getPlayers = async () => {
     setPlayersChange(true);
@@ -131,6 +132,14 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
     }
   };
 
+  const togglePlayers = () => {
+    if (containerClass === "d-none") {
+      setContainerClass("d-table");
+    } else {
+      setContainerClass("d-none");
+    }
+  };
+
   useEffect(() => {
     getPlayers();
     // eslint-disable-next-line
@@ -205,11 +214,14 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
                       />
                     </div>
                   </div>
-                  <button className="btn btn-success btn-block form-control my-3">Adicionar</button>
+                  <button className="btn btn-success btn-block form-control mt-3">Adicionar</button>
                 </form>
               </div>
+              <button className="btn btn-light form-control" onClick={() => togglePlayers()}>
+                Mostrar/Esconder Jogadores
+              </button>
               <div className="table-responsive mt-3">
-                <table className="table">
+                <table className={`table ${containerClass}`} id={`group-${group.group_id}-players`}>
                   <thead className="table-light">
                     <tr>
                       <th>Jogador</th>
