@@ -62,7 +62,7 @@ router.put("/updategroup/:id", authorization, async (req, res) => {
         id,
         req.user,
       ]);
-      res.json("Nome do grupo alterado!");
+      res.json("Informações do grupo foram atualizadas!");
     }
   } catch (err) {
     console.log(err.message);

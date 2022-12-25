@@ -53,7 +53,7 @@ const ListGroups = () => {
                     {<EditGroup group={group} groupChange={groupChange} setGroupChange={setGroupChange} />}
                     <CreateMatch group={group} />
                     <a href={`/group/${group.group_id}`} className="btn btn-secondary mx-1" role="button">
-                      📊 <span className="d-none d-md-inline-block">Ranking</span>
+                      📊 <span className="d-none d-md-inline-block">Estatísticas</span>
                     </a>
                   </td>
                 </tr>

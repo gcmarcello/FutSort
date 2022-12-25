@@ -1,10 +1,10 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-import Loading from "../utils/Loading";
-import Pagination from "../Pagination";
+import Loading from "../../utils/Loading";
+import Pagination from "../../Pagination";
 
-const ListMatches = () => {
+const ListUserMatches = () => {
   const [allMatches, setAllMatches] = useState([]);
   const [filteredMatches, setFilteredMatches] = useState([]);
   const [postsPerPage, setPostsPerPage] = useState(3);
@@ -18,7 +18,7 @@ const ListMatches = () => {
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
 
-      const res = await fetch("/api/match/listmatches", {
+      const res = await fetch(`/api/match/listmatches/player/`, {
         method: "GET",
         headers: myHeaders,
       });
@@ -88,15 +88,15 @@ const ListMatches = () => {
             <tr>
               <th>Data</th>
               <th>Grupo</th>
-              <th>Status</th>
-              <th>Opções</th>
+              <th>Gols</th>
+              <th>Assistências</th>
             </tr>
           </thead>
           <tbody>
             {currentPosts.length === 0 ? (
               <tr>
                 <td colSpan="4" className="text-center">
-                  Nenhuma Partida Encontrada
+                  Nenhuma Partida Encontrada. Conecte sua conta com um jogador de um dos grupos que você joga para ter acesso as estatísticas.
                 </td>
               </tr>
             ) : (
@@ -105,49 +105,12 @@ const ListMatches = () => {
                 <tr key={`match-${match.match_id}`} id={`match-${match.match_id}`}>
                   <td>{match.formattedDate}</td>
                   <td>
-                    <Link to={`/editmatch/${match.match_id}`} style={{ textDecoration: "underline" }}>
+                    <Link to={`/viewmatch/${match.match_id}`} style={{ textDecoration: "underline" }}>
                       {match.group_name}
                     </Link>
                   </td>
-                  <td>
-                    {!match.match_status ? (
-                      <div className="d-flex">
-                        <span className="text-bg-success p-1 rounded">Aberta</span>
-                      </div>
-                    ) : (
-                      <div className="d-flex">
-                        <span className="text-bg-secondary p-1 rounded">Finalizada</span>
-                      </div>
-                    )}
-                  </td>
-                  <td>
-                    <div className="dropdown">
-                      <button
-                        className="btn btn-dark dropdown-toggle "
-                        type="button"
-                        id="dropdownMenuButton1"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      >
-                        <span className="d-none d-md-inline-block">⚙️ Opções</span>
-                      </button>
-                      <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                        <li>
-                          <Link to={`/viewmatch/${match.match_id}`} style={{ textDecoration: "none" }} className="dropdown-item">
-                            Ver
-                          </Link>
-                        </li>
-                        <li>
-                          <hr className="dropdown-divider" />
-                        </li>
-                        <li>
-                          <Link to={`/editmatch/${match.match_id}`} style={{ textDecoration: "none" }} className="dropdown-item">
-                            Editar
-                          </Link>
-                        </li>
-                      </ul>
-                    </div>
-                  </td>
+                  <td>{match.match_player_goals}</td>
+                  <td>{match.match_player_assists}</td>
                 </tr>
               ))
             )}
@@ -171,4 +134,4 @@ const ListMatches = () => {
   );
 };
 
-export default ListMatches;
+export default ListUserMatches;

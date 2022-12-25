@@ -12,18 +12,46 @@ router.post("/createrequest/:groupId/:playerId", authorization, async (req, res)
       req.user,
       "pending",
     ]);
-    const preventMultipleLinks = await pool.query("SELECT * FROM players AS p WHERE p.group_id = $1 AND p.player_user = $2", [groupId, req.user]);
+
+    const preventConcurrentLinks = await pool.query(
+      "SELECT request_id FROM requests AS r WHERE r.group_id = $1 AND r.request_user_id = $2 AND r.request_status = $3",
+      [groupId, req.user, "pending"]
+    );
+
+    if (preventConcurrentLinks.rows.length > 0) {
+      return res.json({ type: "error", message: `Você já solicitou o link com outro jogador.` });
+    }
     if (preventManyRequests.rows.length > 3)
       return res.json({ type: "error", message: `Você tem muitas solicitações pendentes. Aguarde as respostas para enviar mais.` });
-    if (preventMultipleLinks.rows.length > 0) {
-      return res.json({ type: "error", message: `Você já está linkado com um jogador neste grupo (${preventMultipleLinks.rows[0].player_name}).` });
-    }
 
     const newRequest = await pool.query(
       "INSERT INTO requests (request_status, request_user_id, user_name, group_id, player_id) VALUES($1,$2,$3,$4,$5) RETURNING *",
       ["pending", req.user, req.userName, groupId, playerId]
     );
     res.json({ type: "success", message: "Solicitação Enviada!" });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// Prevent Requests if a request is still pending
+router.get("/preventrequests/:id", authorization, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const preventConcurrentLinks = await pool.query(
+      "SELECT request_id FROM requests AS r WHERE r.group_id = $1 AND r.request_user_id = $2 AND r.request_status = $3",
+      [id, req.user, "pending"]
+    );
+    const preventMultipleLinks = await pool.query("SELECT * FROM players AS p WHERE p.group_id = $1 AND p.player_user = $2", [id, req.user]);
+
+    if (preventMultipleLinks.rows.length > 0) {
+      return res.json({ type: "error", message: `Você já está linkado com um jogador neste grupo (${preventMultipleLinks.rows[0].player_name}).` });
+    }
+
+    if (preventConcurrentLinks.rows.length > 0) {
+      return res.json({ type: "error", message: `Você já solicitou o link com outro jogador.` });
+    }
   } catch (err) {
     res.status(500).json(err);
   }

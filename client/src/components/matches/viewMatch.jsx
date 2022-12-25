@@ -13,9 +13,7 @@ const ViewMatch = () => {
   const [matchStatus, setMatchStatus] = useState();
   const [teams, setTeams] = useState([]);
   const [numberOfTeams, setNumberOfTeams] = useState();
-  const [containerClass, setContainerClass] = useState(
-    "d-flex flex-wrap justify-content-center"
-  );
+  const [containerClass, setContainerClass] = useState("d-flex flex-wrap justify-content-center");
   const [teamCardWidth, setTeamCardWidth] = useState({ width: "40%" });
 
   const getMatch = async () => {
@@ -33,13 +31,9 @@ const ViewMatch = () => {
       setMatchStatus(parseData.responseStatus);
       setMatchStats(parseData.responseData);
 
-      setMatchGoalkeepers(
-        matchStats.filter((player) => player.match_player_goalkeeper === true)
-      );
+      setMatchGoalkeepers(matchStats.filter((player) => player.match_player_goalkeeper === true));
 
-      setMatchPlayers(
-        matchStats.filter((player) => player.match_player_goalkeeper === false)
-      );
+      setMatchPlayers(matchStats.filter((player) => player.match_player_goalkeeper === false));
       setSubmitStats(parseData.responseData);
       setNumberOfTeams(parseData.responseNumberOfTeams);
     } catch (err) {
@@ -51,9 +45,7 @@ const ViewMatch = () => {
     setTeams([]);
     let temporaryTeams = [];
     for (let i = 0; i < numberOfTeams; i++) {
-      temporaryTeams.push(
-        matchStats.filter((player) => player.match_player_team === i + 1)
-      );
+      temporaryTeams.push(matchStats.filter((player) => player.match_player_team === i + 1));
     }
     setTeams(temporaryTeams);
   };
@@ -94,20 +86,14 @@ const ViewMatch = () => {
           <div className="d-flex flex-wrap justify-content-center">
             <div className={containerClass}>
               {teams.map((team, index) => (
-                <div
-                  key={`${index + 1}`}
-                  className="card flex-fill m-1"
-                  style={teamCardWidth}
-                >
+                <div key={`${index + 1}`} className="card flex-fill m-1" style={teamCardWidth}>
                   <h5 className="card-header">{`Time ${index + 1}`}</h5>
                   <div className="card-body ps-0">
                     <ul>
                       {matchStats
-                        .filter(
-                          (player) => player.match_player_team === index + 1
-                        )
+                        .filter((player) => player.match_player_team === index + 1)
                         .map((player) => (
-                          <li key={`${index + 1}-${player.player_id}`}>
+                          <li key={`${index + 1}-${player.player_id}`} className="my-2">
                             {player.player_name}
                           </li>
                         ))}

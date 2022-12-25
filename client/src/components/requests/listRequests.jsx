@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
-const ListRequests = () => {
+const ListRequests = ({ requestsChange, setRequestsChange }) => {
   const [requests, setRequests] = useState([]);
 
   const getPendingRequests = async () => {
@@ -24,6 +24,7 @@ const ListRequests = () => {
 
   const answerRequest = async (id, choice) => {
     try {
+      setRequestsChange(true);
       const myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
@@ -34,6 +35,7 @@ const ListRequests = () => {
       });
       const parseRes = await response.json();
       toast.success(parseRes, { theme: "colored" });
+      setRequestsChange(false);
     } catch (err) {
       console.log(err.message);
     }
@@ -41,7 +43,7 @@ const ListRequests = () => {
 
   useEffect(() => {
     getPendingRequests();
-  }, []);
+  }, [requestsChange]);
 
   return (
     <Fragment>

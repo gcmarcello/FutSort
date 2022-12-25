@@ -1,10 +1,11 @@
 import React, { Fragment, useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
-import Loading from "../utils/Loading";
-import Pagination from "../Pagination";
+import Loading from "../../utils/Loading";
+import Pagination from "../../Pagination";
 
 const ListMatches = () => {
+  const { id } = useParams();
   const [allMatches, setAllMatches] = useState([]);
   const [filteredMatches, setFilteredMatches] = useState([]);
   const [postsPerPage, setPostsPerPage] = useState(3);
@@ -18,7 +19,7 @@ const ListMatches = () => {
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
 
-      const res = await fetch("/api/match/listmatches", {
+      const res = await fetch(`/api/match/listmatches/group/${id}`, {
         method: "GET",
         headers: myHeaders,
       });
@@ -81,15 +82,14 @@ const ListMatches = () => {
 
   return (
     <Fragment>
-      <div className="card flex-fill m-1">
+      <div className="card flex-fill">
         <h4 className="card-header">Partidas</h4>
         <table className="table">
           <thead>
             <tr>
               <th>Data</th>
-              <th>Grupo</th>
               <th>Status</th>
-              <th>Opções</th>
+              <th>Jogadores</th>
             </tr>
           </thead>
           <tbody>
@@ -103,10 +103,9 @@ const ListMatches = () => {
               currentPosts[0].group_id !== null &&
               currentPosts.map((match) => (
                 <tr key={`match-${match.match_id}`} id={`match-${match.match_id}`}>
-                  <td>{match.formattedDate}</td>
                   <td>
-                    <Link to={`/editmatch/${match.match_id}`} style={{ textDecoration: "underline" }}>
-                      {match.group_name}
+                    <Link to={`/viewmatch/${match.match_id}`} style={{ textDecoration: "underline" }}>
+                      {match.formattedDate}
                     </Link>
                   </td>
                   <td>
@@ -120,34 +119,7 @@ const ListMatches = () => {
                       </div>
                     )}
                   </td>
-                  <td>
-                    <div className="dropdown">
-                      <button
-                        className="btn btn-dark dropdown-toggle "
-                        type="button"
-                        id="dropdownMenuButton1"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      >
-                        <span className="d-none d-md-inline-block">⚙️ Opções</span>
-                      </button>
-                      <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                        <li>
-                          <Link to={`/viewmatch/${match.match_id}`} style={{ textDecoration: "none" }} className="dropdown-item">
-                            Ver
-                          </Link>
-                        </li>
-                        <li>
-                          <hr className="dropdown-divider" />
-                        </li>
-                        <li>
-                          <Link to={`/editmatch/${match.match_id}`} style={{ textDecoration: "none" }} className="dropdown-item">
-                            Editar
-                          </Link>
-                        </li>
-                      </ul>
-                    </div>
-                  </td>
+                  <td>{match.match_numofteams * match.match_playersperteam}</td>
                 </tr>
               ))
             )}

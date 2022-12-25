@@ -21,14 +21,7 @@ router.get("/creatematch/:id/playerlist", authorization, async (req, res) => {
 // Create Match Form Submit
 router.post("/creatematch/", authorization, async (req, res) => {
   try {
-    const {
-      groupId,
-      matchDate,
-      numberOfTeams,
-      playersPerTeam,
-      pickedPlayers,
-      pickedGoalkeepers,
-    } = req.body;
+    const { groupId, matchDate, numberOfTeams, playersPerTeam, pickedPlayers, pickedGoalkeepers } = req.body;
     let playersToSort = [];
     let seeds = [];
     var teams = [];
@@ -48,33 +41,18 @@ router.post("/creatematch/", authorization, async (req, res) => {
     }
 
     // Defining Top Scorer and Assistants from chosen players to use as reference
-    const averageTopScorer = playersToSort.sort(
-      (a, b) =>
-        b.player_goals / b.player_matches - a.player_goals / a.player_matches
-    )[0];
-    const averageTopAssistant = playersToSort.sort(
-      (c, d) =>
-        d.player_assists / d.player_matches -
-        c.player_assists / c.player_matches
-    )[0];
+    const averageTopScorer = playersToSort.sort((a, b) => b.player_goals / b.player_matches - a.player_goals / a.player_matches)[0];
+    const averageTopAssistant = playersToSort.sort((c, d) => d.player_assists / d.player_matches - c.player_assists / c.player_matches)[0];
 
-    const topScorerAvg =
-      averageTopScorer.player_goals / averageTopScorer.player_matches;
-    const topAssistantAvg =
-      averageTopAssistant.player_assists / averageTopAssistant.player_matches;
+    const topScorerAvg = averageTopScorer.player_goals / averageTopScorer.player_matches;
+    const topAssistantAvg = averageTopAssistant.player_assists / averageTopAssistant.player_matches;
 
     // Defining ratings to start team sorting proccess
     for (let i = 0; i < playersToSort.length; i++) {
       if (playersToSort[i].player_matches > 0) {
         let starPoints =
-          ((playersToSort[i].player_goals /
-            playersToSort[i].player_matches /
-            topScorerAvg) *
-            0.5 +
-            (playersToSort[i].player_assists /
-              playersToSort[i].player_matches /
-              topAssistantAvg) *
-              0.5) *
+          ((playersToSort[i].player_goals / playersToSort[i].player_matches / topScorerAvg) * 0.5 +
+            (playersToSort[i].player_assists / playersToSort[i].player_matches / topAssistantAvg) * 0.5) *
           5;
         playersToSort[i].player_stars = starPoints;
       }
@@ -126,10 +104,7 @@ router.post("/creatematch/", authorization, async (req, res) => {
       seedShuffler(seeds);
       teamMaker(seeds);
       attempts++;
-    } while (
-      teams[teams.length - 1].teamAverage - teams[0].teamAverage > 0.5 ||
-      attempts === 4
-    );
+    } while (teams[teams.length - 1].teamAverage - teams[0].teamAverage > 0.5 || attempts === 4);
 
     teams = teams.sort((a, b) => a.teamNumber - b.teamNumber);
 
@@ -169,6 +144,35 @@ router.get("/listmatches", authorization, async (req, res) => {
   }
 });
 
+// Get list of matches of specific user
+router.get("/listmatches/player/", authorization, async (req, res) => {
+  try {
+    const matches = await pool.query(
+      "SELECT * FROM matches_players AS mp LEFT JOIN players AS p ON mp.player_id = p.player_id LEFT JOIN groups AS g ON p.group_id = g.group_id LEFT JOIN matches AS m ON m.match_id = mp.match_id WHERE p.player_user = $1",
+      [req.user]
+    );
+    res.json(matches.rows);
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).json("Server Error");
+  }
+});
+
+// Get list of matches in a group (PUBLIC)
+router.get("/listmatches/group/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const matches = await pool.query(
+      "SELECT * FROM matches AS m LEFT JOIN groups AS g ON m.group_id = g.group_id WHERE g.group_id = $1 ORDER BY m.match_date DESC",
+      [id]
+    );
+    res.json(matches.rows);
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).json("Server Error");
+  }
+});
+
 // Get list of players in match (View/Edit pages) (PUBLIC)
 router.get("/listmatchplayers/:id/", async (req, res) => {
   try {
@@ -180,9 +184,7 @@ router.get("/listmatchplayers/:id/", async (req, res) => {
       [id, req.user]
     );
 
-    validateUser.rows.length < 1
-      ? (responseUserAuth = false)
-      : (responseUserAuth = true);
+    validateUser.rows.length < 1 ? (responseUserAuth = false) : (responseUserAuth = true);
 
     const matches = await pool.query(
       "SELECT * FROM matches_players AS mp LEFT JOIN matches AS m ON mp.match_id = m.match_id LEFT JOIN groups AS g ON m.group_id = g.group_id LEFT JOIN players as p ON p.player_id = mp.player_id WHERE mp.match_id = $1 ORDER BY p.player_name ASC, m.match_date DESC",
@@ -194,9 +196,7 @@ router.get("/listmatchplayers/:id/", async (req, res) => {
       let dateToParseDay = String(dateToParse.getDate()).padStart(2, 0);
       let dateToParseMonth = String(dateToParse.getMonth() + 1).padStart(2, 0);
       let dateToParseYear = String(dateToParse.getFullYear());
-      matches.rows[
-        i
-      ].formattedDate = `${dateToParseDay}/${dateToParseMonth}/${dateToParseYear}`;
+      matches.rows[i].formattedDate = `${dateToParseDay}/${dateToParseMonth}/${dateToParseYear}`;
     }
 
     const responseData = matches.rows;
@@ -228,9 +228,7 @@ router.get("/listmatchplayers/edit/:id/", authorization, async (req, res) => {
       [id, req.user]
     );
 
-    validateUser.rows.length < 1
-      ? (responseUserAuth = false)
-      : (responseUserAuth = true);
+    validateUser.rows.length < 1 ? (responseUserAuth = false) : (responseUserAuth = true);
 
     const matches = await pool.query(
       "SELECT * FROM matches_players AS mp LEFT JOIN matches AS m ON mp.match_id = m.match_id LEFT JOIN groups AS g ON m.group_id = g.group_id LEFT JOIN players as p ON p.player_id = mp.player_id WHERE mp.match_id = $1 ORDER BY p.player_name ASC, m.match_date DESC",
@@ -242,9 +240,7 @@ router.get("/listmatchplayers/edit/:id/", authorization, async (req, res) => {
       let dateToParseDay = String(dateToParse.getDate()).padStart(2, 0);
       let dateToParseMonth = String(dateToParse.getMonth() + 1).padStart(2, 0);
       let dateToParseYear = String(dateToParse.getFullYear());
-      matches.rows[
-        i
-      ].formattedDate = `${dateToParseDay}/${dateToParseMonth}/${dateToParseYear}`;
+      matches.rows[i].formattedDate = `${dateToParseDay}/${dateToParseMonth}/${dateToParseYear}`;
     }
 
     const responseData = matches.rows;
@@ -281,19 +277,12 @@ router.put("/editmatch/:id/", authorization, async (req, res) => {
     for (let i = 0; i < matchStats.length; i++) {
       const updateMatch = await pool.query(
         "UPDATE matches_players SET match_player_goals = $1, match_player_assists = $2 WHERE matchplayer_id = $3 RETURNING *",
-        [
-          matchStats[i].match_player_goals,
-          matchStats[i].match_player_assists,
-          matchStats[i].matchplayer_id,
-        ]
+        [matchStats[i].match_player_goals, matchStats[i].match_player_assists, matchStats[i].matchplayer_id]
       );
       responseData.push(...updateMatch.rows);
     }
 
-    const matchStatus = await pool.query(
-      "SELECT match_status FROM matches AS m WHERE m.match_id = $1",
-      [id]
-    );
+    const matchStatus = await pool.query("SELECT match_status FROM matches AS m WHERE m.match_id = $1", [id]);
     const responseStatus = matchStatus.rows[0].match_status;
     return res.json({ responseData, responseStatus });
   } catch (err) {
@@ -312,18 +301,11 @@ router.put("/savematch/:id/", authorization, async (req, res) => {
     for (let i = 0; i < matchStats.length; i++) {
       const updateMatch = await pool.query(
         "UPDATE players SET player_goals = player_goals + $1, player_assists = player_assists + $2, player_matches = player_matches + 1 WHERE player_id = $3 RETURNING *",
-        [
-          matchStats[i].match_player_goals,
-          matchStats[i].match_player_assists,
-          matchStats[i].player_id,
-        ]
+        [matchStats[i].match_player_goals, matchStats[i].match_player_assists, matchStats[i].player_id]
       );
       responseData.push(...updateMatch.rows);
     }
-    const finishMatch = await pool.query(
-      "UPDATE matches SET match_status = $1 WHERE match_id = $2",
-      [true, matchStats[0].match_id]
-    );
+    const finishMatch = await pool.query("UPDATE matches SET match_status = $1 WHERE match_id = $2", [true, matchStats[0].match_id]);
 
     return res.json(responseData);
   } catch (err) {

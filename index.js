@@ -31,6 +31,8 @@ app.use("/api/player", require("./routes/player"));
 app.use("/api/match", require("./routes/match"));
 // Request Routes
 app.use("/api/request", require("./routes/request"));
+// Seasons Routes
+app.use("/api/season", require("./routes/season"));
 
 /* React Routes */
 // Serve react files

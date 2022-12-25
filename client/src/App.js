@@ -14,7 +14,7 @@ import EditMatch from "./components/matches/editMatch";
 import Error404Page from "./components/404";
 import Loading from "./components/utils/Loading";
 import NavBar from "./components/utils/navbar";
-import GroupProfile from "./components/GroupProfile";
+import GroupProfile from "./components/profiles/groups/GroupProfile";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -107,7 +107,10 @@ function App() {
                 )
               }
             />
-            <Route path="/editmatch/:id" element={isAuthenticated ? <EditMatch isAuthenticated={isAuthenticated} /> : <ViewMatch />} />
+            <Route
+              path="/editmatch/:id"
+              element={isAuthenticated ? <EditMatch isAuthenticated={isAuthenticated} /> : <Navigate to="/dashboard/" />}
+            />
 
             {/* 404 */}
             <Route path="*" element={<Error404Page />} />

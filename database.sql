@@ -32,6 +32,21 @@ CREATE TABLE players(
     FOREIGN KEY (player_user) REFERENCES users(user_id)
 );
 
+CREATE TABLE seasons(
+    season_id SERIAL,
+    season_group_id INTEGER NOT NULL,
+    season_player_id SERIAL NOT NULL,
+    season_player_name VARCHAR(255) NOT NULL,
+    season_year INTEGER NOT NULL,
+    season_goals INTEGER NOT NULL,
+    season_assists INTEGER NOT NULL,
+    season_matches INTEGER NOT NULL,
+    season_score REAL NOT NULL,
+    PRIMARY KEY (season_id),
+    FOREIGN KEY (season_player_id) REFERENCES players(player_id),
+    FOREIGN KEY (season_group_id) REFERENCES groups(group_id),
+);
+
 CREATE TABLE matches(
     match_id SERIAL,
     group_id SERIAL,

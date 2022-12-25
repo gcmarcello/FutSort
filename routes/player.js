@@ -56,4 +56,18 @@ router.get("/listplayers/:id", async (req, res) => {
   }
 });
 
+// Read Players in a Group
+router.get("/listlinkedplayers/", authorization, async (req, res) => {
+  try {
+    const userId = req.user;
+    const players = await pool.query("SELECT * FROM players AS p LEFT JOIN groups AS g ON p.group_id = g.group_id WHERE p.player_user = $1", [
+      userId,
+    ]);
+    res.json(players.rows);
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).json("Server Error");
+  }
+});
+
 module.exports = router;
