@@ -15,7 +15,6 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
   const [containerClass, setContainerClass] = useState("d-table");
 
   const getPlayers = async () => {
-    setPlayersChange(true);
     try {
       const myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
@@ -27,7 +26,6 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
       });
       const parseData = await response.json();
       setPlayerList(parseData);
-      setPlayersChange(false);
     } catch (err) {
       console.log(err.message);
     }
@@ -64,6 +62,7 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
 
   const addPlayer = async (e) => {
     e.preventDefault();
+    setPlayersChange(true);
     try {
       const myHeaders = new Headers();
 
@@ -85,6 +84,7 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
         setAddPlayerName("");
         toast.success("Jogador Adicionado!", { theme: "colored" });
       }
+      setPlayersChange(false);
     } catch (err) {
       toast.error(err.message, { theme: "colored" });
     }
