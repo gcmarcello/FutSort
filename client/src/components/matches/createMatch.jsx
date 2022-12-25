@@ -7,9 +7,7 @@ const CreateMatch = ({ group, setGroupsChange }) => {
   const [numberOfTeams, setNumberOfTeams] = useState(4);
   const [playersPerTeam, setPlayersPerTeam] = useState(5);
   const [playersNeeded, setPlayersNeeded] = useState(20);
-  const [matchDate, setMatchDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  );
+  const [matchDate, setMatchDate] = useState(new Date().toISOString().slice(0, 10));
   const [enableMatch, setEnableMatch] = useState({
     disabled: false,
     bsClass: "btn btn-outline-success",
@@ -21,13 +19,10 @@ const CreateMatch = ({ group, setGroupsChange }) => {
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
 
-      const response = await fetch(
-        `/api/match/creatematch/${group.group_id}/playerlist`,
-        {
-          method: "GET",
-          headers: myHeaders,
-        }
-      );
+      const response = await fetch(`/api/match/creatematch/${group.group_id}/playerlist`, {
+        method: "GET",
+        headers: myHeaders,
+      });
       const parseData = await response.json();
       setPlayerList(parseData);
     } catch (err) {
@@ -131,45 +126,24 @@ const CreateMatch = ({ group, setGroupsChange }) => {
 
   return (
     <Fragment>
-      <button
-        type="button"
-        className="btn btn-primary mx-1"
-        data-bs-toggle="modal"
-        data-bs-target={`#match-${group.group_id}`}
-        onClick={() => {
-          getPlayers();
-        }}
-      >
+      <button type="button" className="btn btn-primary mx-1" data-bs-toggle="modal" data-bs-target={`#match-${group.group_id}`}>
         ⚽<span className="d-none d-md-inline-block">Criar Partida</span>
       </button>
 
-      <div
-        className="modal fade"
-        id={`match-${group.group_id}`}
-        tabIndex="-1"
-        aria-labelledby="exampleModalLabel"
-        aria-hidden="true"
-      >
+      <div className="modal fade" id={`match-${group.group_id}`} tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="exampleModalLabel">
                 Criar Partida no {group.group_name}
               </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form onSubmit={onSubmitForm}>
               <div className="modal-body">
                 <div className="d-flex row  my-3">
                   <div className="col">
-                    <label htmlFor={`numberofteams-input-${group.group_id}`}>
-                      Número de Times
-                    </label>
+                    <label htmlFor={`numberofteams-input-${group.group_id}`}>Número de Times</label>
                     <select
                       id={`numberofteams-input-${group.group_id}`}
                       className="form-select"
@@ -188,9 +162,7 @@ const CreateMatch = ({ group, setGroupsChange }) => {
                     </select>
                   </div>
                   <div className="col">
-                    <label htmlFor={`playersperteam-input-${group.group_id}`}>
-                      Jogadores por Time
-                    </label>
+                    <label htmlFor={`playersperteam-input-${group.group_id}`}>Jogadores por Time</label>
                     <select
                       id={`playersperteam-input-${group.group_id}`}
                       className="form-select"
@@ -230,8 +202,7 @@ const CreateMatch = ({ group, setGroupsChange }) => {
                     <tr>
                       <th className="d-flex justify-content-center">
                         <h4 className="text-center">
-                          Jogadores: {pickedPlayers.length}/{playersNeeded} |
-                          Goleiros: {pickedGoalkeepers.length}
+                          Jogadores: {pickedPlayers.length}/{playersNeeded} | Goleiros: {pickedGoalkeepers.length}
                         </h4>
                       </th>
                     </tr>
@@ -248,10 +219,7 @@ const CreateMatch = ({ group, setGroupsChange }) => {
                               className="btn-check"
                               onChange={() => addOrRemove(player.player_id)}
                             />
-                            <label
-                              htmlFor={`player-checkboxes-${player.player_id}`}
-                              className="btn btn-outline-success form-control"
-                            >
+                            <label htmlFor={`player-checkboxes-${player.player_id}`} className="btn btn-outline-success form-control">
                               {player.player_name}
                             </label>
                           </div>
@@ -263,10 +231,7 @@ const CreateMatch = ({ group, setGroupsChange }) => {
                               className="btn-check"
                               onChange={() => pickGoalkeepers(player.player_id)}
                             />
-                            <label
-                              htmlFor={`goalkeeper-checkboxes-${player.player_id}`}
-                              className="btn btn-outline-warning form-control"
-                            >
+                            <label htmlFor={`goalkeeper-checkboxes-${player.player_id}`} className="btn btn-outline-warning form-control">
                               <span
                                 style={{
                                   textShadow: "1px 1px 2px rgba(0, 0, 0, 0.4)",
@@ -287,18 +252,10 @@ const CreateMatch = ({ group, setGroupsChange }) => {
                 </h4> */}
               </div>
               <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                >
+                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
                   Close
                 </button>
-                <button
-                  type="submit"
-                  className={enableMatch.bsClass}
-                  disabled={enableMatch.disabled}
-                >
+                <button type="submit" className={enableMatch.bsClass} disabled={enableMatch.disabled}>
                   Criar Partida
                 </button>
               </div>
