@@ -31,6 +31,7 @@ router.post("/request", [verifyCaptcha, validInfo], async (req, res) => {
 
       passwordRecoveryTransporter.sendMail(passwordRecoveryTransporterMail, function (err, data) {
         if (err) {
+          console.log(err);
           res.json({ type: "error", message: err });
         } else {
           res.json({
