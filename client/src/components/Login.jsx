@@ -29,7 +29,7 @@ const Login = ({ setIsAuthenticated }) => {
     }
   }, [name, password]);
 
-  const onSubmitForm = async (e) => {
+  const submitLogin = async (e) => {
     e.preventDefault();
     try {
       const body = { name, password };
@@ -65,7 +65,7 @@ const Login = ({ setIsAuthenticated }) => {
                 <RequestPasswordReset setTogglePasswordReset={setTogglePasswordReset} />
               ) : (
                 <Fragment>
-                  <form onSubmit={onSubmitForm} action="#">
+                  <form onSubmit={submitLogin} action="#">
                     <input
                       type="text"
                       name="name"
