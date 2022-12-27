@@ -13,7 +13,7 @@ import ViewMatch from "./components/matches/viewMatch";
 import EditMatch from "./components/matches/editMatch";
 import Error404Page from "./components/404";
 import Loading from "./components/utils/Loading";
-import Navbar from "./components/utils/Navbar.jsx";
+import Navbar from "./components/utils/Navbar";
 import GroupProfile from "./components/profiles/groups/GroupProfile";
 import PasswordReset from "./components/PasswordReset";
 
