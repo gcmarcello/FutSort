@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from "react";
 import { useEffect } from "react";
 
-const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
+const NavigationBar = ({ isAuthenticated, setIsAuthenticated }) => {
   const [name, setName] = useState("");
 
   const getProfile = async () => {
@@ -99,4 +99,4 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   );
 };
 
-export default Navbar;
+export default NavigationBar;
