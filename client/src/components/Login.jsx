@@ -2,6 +2,8 @@ import React, { Fragment, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import RequestPasswordReset from "./RequestPasswordReset";
+
 const Login = ({ setIsAuthenticated }) => {
   const [inputs, setInputs] = useState({
     name: "",
@@ -9,9 +11,14 @@ const Login = ({ setIsAuthenticated }) => {
   });
   const { name, password } = inputs;
   const [submitButton, setSubmitButton] = useState(true);
+  const [togglePasswordReset, setTogglePasswordReset] = useState(false);
 
   const onChange = (e) => {
     setInputs({ ...inputs, [e.target.name]: e.target.value });
+  };
+
+  const toggleResetForm = () => {
+    togglePasswordReset ? setTogglePasswordReset(false) : setTogglePasswordReset(true);
   };
 
   useEffect(() => {
@@ -53,35 +60,44 @@ const Login = ({ setIsAuthenticated }) => {
         <h1 className="my-3 text-center">Login</h1>
         <div className="row justify-content-center" style={{ "--bs-gutter-x": "0" }}>
           <div className="container d-flex justify-content-center">
-            <div className="bg-light shadow bg-gradient rounded p-4 ">
-              <form onSubmit={onSubmitForm} action="#">
-                <input
-                  type="text"
-                  name="name"
-                  id="name"
-                  placeholder="Usuário"
-                  className="form-control form-control-lg mb-3"
-                  value={name}
-                  onChange={(e) => onChange(e)}
-                />
+            <div className="bg-light shadow bg-gradient rounded p-4 m-3">
+              {togglePasswordReset ? (
+                <RequestPasswordReset setTogglePasswordReset={setTogglePasswordReset} />
+              ) : (
+                <Fragment>
+                  <form onSubmit={onSubmitForm} action="#">
+                    <input
+                      type="text"
+                      name="name"
+                      id="name"
+                      placeholder="Usuário"
+                      className="form-control form-control-lg mb-3"
+                      value={name}
+                      onChange={(e) => onChange(e)}
+                    />
 
-                <input
-                  type="password"
-                  name="password"
-                  id="password"
-                  placeholder="Senha"
-                  className="form-control form-control-lg mb-3"
-                  value={password}
-                  onChange={(e) => onChange(e)}
-                />
-                <hr />
-                <div className="d-flex">
-                  <a role="button" className="form-control btn btn-secondary mx-1" href="/register">
-                    Registre-se
-                  </a>
-                  <input type="submit" className="form-control btn btn-success mx-1" value={"Login"} disabled={submitButton} />
-                </div>
-              </form>
+                    <input
+                      type="password"
+                      name="password"
+                      id="password"
+                      placeholder="Senha"
+                      className="form-control form-control-lg mb-3"
+                      value={password}
+                      onChange={(e) => onChange(e)}
+                    />
+                    <hr />
+                    <div className="d-flex">
+                      <a role="button" className="form-control btn btn-secondary mx-1" href="/register">
+                        Registre-se
+                      </a>
+                      <input type="submit" className="form-control btn btn-success mx-1" value={"Login"} disabled={submitButton} />
+                    </div>
+                  </form>
+                  <button type="link" className="btn btn-link text-secondary link-button" style={{ padding: "0.25em" }} onClick={toggleResetForm}>
+                    Esqueci a Senha
+                  </button>
+                </Fragment>
+              )}
             </div>
           </div>
         </div>

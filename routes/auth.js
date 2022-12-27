@@ -3,13 +3,14 @@ const pool = require("../db");
 const bcrypt = require("bcrypt");
 const jwtGenerator = require("../utils/jwtGenerator");
 const validInfo = require("../middleware/validInfo");
+const verifyCaptcha = require("../middleware/verifyCaptcha");
 const authorization = require("../middleware/Authorization");
 
 require("dotenv").config();
 
 // Register Route
-router.post("/register", validInfo, async (req, res) => {
-  const { name, email, password } = req.body;
+router.post("/register", [verifyCaptcha, validInfo], async (req, res) => {
+  const { captchaToken, name, email, password } = req.body;
   try {
     // Encrypting password
     const saltRounds = 10;

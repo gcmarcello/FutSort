@@ -33,6 +33,8 @@ app.use("/api/match", require("./routes/match"));
 app.use("/api/request", require("./routes/request"));
 // Seasons Routes
 app.use("/api/season", require("./routes/season"));
+// Password Routes
+app.use("/api/password", require("./routes/password"));
 
 /* React Routes */
 // Serve react files
@@ -49,6 +51,8 @@ app.use("/editmatch/*", express.static(path.join(__dirname, "client/build")));
 app.use("/viewmatch/*", express.static(path.join(__dirname, "client/build")));
 // View Groups
 app.use("/group/*", express.static(path.join(__dirname, "client/build")));
+// Reset Password
+app.use("/password/*", express.static(path.join(__dirname, "client/build")));
 
 app.listen(port, () => {
   console.log(

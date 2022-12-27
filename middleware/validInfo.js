@@ -1,8 +1,7 @@
-const { verify } = require("hcaptcha");
 const pool = require("../db");
 
 module.exports = async (req, res, next) => {
-  const { captchaToken, email, name, password } = req.body;
+  const { email, name, password } = req.body;
 
   function validEmail(userEmail) {
     return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(userEmail);
@@ -20,11 +19,6 @@ module.exports = async (req, res, next) => {
     } else if (!validPassword(password)) {
       return res.status(400).json("Senha inválida.");
     }
-    const verifyCaptcha = await verify(process.env.NODE_HCAPTCHA_SECRET, captchaToken);
-
-    if (verifyCaptcha.success != true) {
-      return res.status(400).json("Por favor, verifique o Captcha.");
-    }
 
     const usernameCheck = await pool.query("SELECT * FROM users WHERE user_name = $1", [name]);
     const emailCheck = await pool.query("SELECT * FROM users WHERE user_email = $1", [email]);
@@ -41,6 +35,14 @@ module.exports = async (req, res, next) => {
   if (req.path === "/login") {
     if (![name, password].every(Boolean)) {
       return res.status(400).json("Senha ou usuário estão vazios.");
+    }
+  }
+
+  if (req.path === "/password/reset/*") {
+    if (![name, password].every(Boolean)) {
+      return res.status(400).json("Senha ou usuário estão vazios.");
+    } else if (!validPassword(password)) {
+      return res.status(400).json("Senha inválida.");
     }
   }
 

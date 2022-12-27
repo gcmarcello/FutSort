@@ -84,6 +84,16 @@ CREATE TABLE requests(
     FOREIGN KEY (player_id) REFERENCES players(player_id)
 );
 
+CREATE TABLE password_resets(
+    reset_id UUID DEFAULT UUID_generate_v4(),
+    reset_email VARCHAR(255) NOT NULL,
+    reset_user_id UUID NOT NULL,
+    reset_expiration TIMESTAMPTZ NOT NULL,
+    PRIMARY KEY(reset_id)
+    FOREIGN KEY(reset_email) REFERENCES users(user_email),
+    FOREIGN KEY(reset_user_id) REFERENCES users(user_id)
+);
+
 --fake users data
 
 insert into users (user_name, user_email, user_password) values ('joao','joao@joao.com','senhaJoao123');

@@ -1,25 +1,43 @@
 // Package Components
 import React, { Fragment, useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Custom Components
-import Captcha from "./utils/Captcha";
+import Loading from "./utils/Loading";
 import PasswordPopover from "./utils/PasswordPopover";
+import Captcha from "./utils/Captcha";
 
-const Register = ({ setIsAuthenticated }) => {
+const PasswordReset = ({ setIsAuthenticated }) => {
+  let { requestId } = useParams();
   const [inputs, setInputs] = useState({
-    name: "",
-    email: "",
     password: "",
     confirmPassword: "",
   });
-
   const [captchaToken, setCaptchaToken] = useState("");
   const [submitButton, setSubmitButton] = useState(true);
-  const { name, email, password, confirmPassword } = inputs;
+  const [requestStatus, setRequestStatus] = useState(null);
+  const [userId, setUserId] = useState("");
+  const { password, confirmPassword } = inputs;
   const captchaComponent = useRef();
+
+  useEffect(() => {
+    const fetchRequest = async () => {
+      try {
+        const response = await fetch(`/api/password/review/${requestId}`, {
+          method: "GET",
+          headers: { "Content-type": "application/json" },
+        });
+        const parseRes = await response.json();
+        setRequestStatus(parseRes);
+        setUserId(parseRes.reset_user_id);
+      } catch (err) {
+        console.log(err.message);
+      }
+    };
+    fetchRequest();
+  }, [requestId]);
 
   const handleChange = (e) => {
     setInputs({ ...inputs, [e.target.name]: e.target.value });
@@ -31,10 +49,11 @@ const Register = ({ setIsAuthenticated }) => {
       toast.error("Por favor, verifique o Captcha.", { theme: "colored" });
       return;
     }
-    const body = { captchaToken, email, name, password };
+
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
+      const body = { captchaToken, password, userId, requestId };
+      const response = await fetch("/api/password/update", {
+        method: "PUT",
         headers: { "Content-type": "application/json" },
         body: JSON.stringify(body),
       });
@@ -63,34 +82,21 @@ const Register = ({ setIsAuthenticated }) => {
     }
   }, [captchaToken]);
 
+  if (requestStatus === null) {
+    return <Loading />;
+  }
+
+  if (typeof requestStatus === "string") {
+    return <Navigate to="/dashboard" element={toast.error(`${requestStatus}`, { theme: "colored" })} />;
+  }
+
   return (
     <Fragment>
-      <h1 className="mt-3 mb-1 text-center">Registro</h1>
+      <h1 className="mt-3 mb-1 text-center">Redefinir Senha</h1>
       <div className="row justify-content-center" style={{ "--bs-gutter-x": "0" }}>
         <div className="container d-flex justify-content-center">
           <div className="bg-light shadow bg-gradient rounded p-4 ">
             <form onSubmit={onSubmitForm}>
-              <div>
-                <h5>Dados</h5>
-                <input
-                  type="text"
-                  name="name"
-                  id="name"
-                  placeholder="Nome de Usuário"
-                  className="form-control"
-                  value={name}
-                  onChange={(e) => handleChange(e)}
-                />
-                <input
-                  type="email"
-                  name="email"
-                  id="email"
-                  placeholder="Email"
-                  className="form-control my-3"
-                  value={email}
-                  onChange={(e) => handleChange(e)}
-                />
-              </div>
               <div>
                 <PasswordPopover password={password} handleChange={handleChange} />
 
@@ -103,7 +109,7 @@ const Register = ({ setIsAuthenticated }) => {
                     style={{ "--bs-bg-opacity": ".1" }}
                     value={confirmPassword}
                     onChange={(e) => handleChange(e)}
-                    placeholder="Repetir Senha"
+                    placeholder="Confirmar Nova Senha"
                     aria-label="confirm-password"
                     aria-describedby="confirm-password-status"
                   />
@@ -116,10 +122,9 @@ const Register = ({ setIsAuthenticated }) => {
 
               <Captcha captchaComponent={captchaComponent} setCaptchaToken={setCaptchaToken} />
               <button className="btn btn-block btn-success form-control" disabled={submitButton}>
-                Registrar
+                Alterar Senha
               </button>
             </form>
-            <Link to="/dashboard">Login</Link>
           </div>
         </div>
       </div>
@@ -127,4 +132,4 @@ const Register = ({ setIsAuthenticated }) => {
   );
 };
 
-export default Register;
+export default PasswordReset;
