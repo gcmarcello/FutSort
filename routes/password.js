@@ -8,8 +8,9 @@ const validInfo = require("../middleware/validInfo");
 
 // Create password change request
 router.post("/request", [verifyCaptcha, validInfo], async (req, res) => {
-  const { email } = req.body;
-  const validateEmail = await pool.query("SELECT user_email, user_id from users WHERE user_email = $1", [email]);
+  const { userEmail } = req.body;
+  const validateEmail = await pool.query("SELECT user_email, user_id from users WHERE user_email = $1", [userEmail]);
+  console.log(validateEmail.rows.length);
 
   if (validateEmail.rows.length > 0) {
     try {
@@ -28,8 +29,6 @@ router.post("/request", [verifyCaptcha, validInfo], async (req, res) => {
         subject: "FutSort - Recuperação de Senha",
         html: `<h1><strong><span style="color:#27ae60">F</span>ut<span style="color:#27ae60">S</span>ort - Redefini&ccedil;&atilde;o de Senha</strong></h1><p>Ol&aacute;,</p><p>Parece que voc&ecirc; requisitou uma redefini&ccedil;&atilde;o de senha para a sua conta no FutSort. Clique no link abaixo ou copie e cole no navegador para ter acesso a p&aacute;gina de redefini&ccedil;&atilde;o da senha.</p><p><a href="https://www.futsort.com/password/reset/${passwordResetId}">https://www.futsort.com/password/reset/${passwordResetId}</a></p><p>Lembre-se que a sua senha deve conter no m&iacute;nimo:</p><ul><li>8 Caracteres</li><li>1 Caractere ma&iacute;usculo</li><li>1 Caractere min&uacute;sculo</li><li>1 N&uacute;mero</li></ul><p>Se voc&ecirc; n&atilde;o requisitou que sua senha seja alterada, por favor desconsidere este e-mail. <strong>Este link ir&aacute; expirar em 2 horas</strong>.</p><p>Obrigado,</p><p>Administra&ccedil;&atilde;o <strong><span style="color:#27ae60">F</span>ut<span style="color:#27ae60">S</span>ort.</strong></p>`,
       };
-
-      console.log("hi");
 
       passwordRecoveryTransporter.sendMail(passwordRecoveryTransporterMail, function (err, data) {
         if (err) {
