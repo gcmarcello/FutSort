@@ -14,7 +14,7 @@ const PasswordReset = ({ setTogglePasswordReset }) => {
   const [submitButton, setSubmitButton] = useState(true);
   const captchaComponent = useRef();
 
-  const onSubmitForm = async (e) => {
+  const submitRequest = async (e) => {
     setIsLoading(true);
     e.preventDefault();
     if (!captchaToken) {
@@ -51,7 +51,7 @@ const PasswordReset = ({ setTogglePasswordReset }) => {
 
   return (
     <Fragment>
-      <form onSubmit={onSubmitForm}>
+      <form onSubmit={submitRequest}>
         <div className="text-break mb-3">
           Digite o email da sua conta abaixo.
           <br /> Mandaremos uma mensagem com as
