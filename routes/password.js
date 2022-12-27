@@ -10,7 +10,6 @@ const validInfo = require("../middleware/validInfo");
 router.post("/request", [verifyCaptcha, validInfo], async (req, res) => {
   const { userEmail } = req.body;
   const validateEmail = await pool.query("SELECT user_email, user_id from users WHERE user_email = $1", [userEmail]);
-  console.log(validateEmail.rows.length);
 
   if (validateEmail.rows.length > 0) {
     try {
