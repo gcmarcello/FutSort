@@ -81,6 +81,7 @@ router.delete("/deletegroup/:id", authorization, async (req, res) => {
     if (!validateUser.rows.length) {
       return res.json("Esse grupo não pertence à sua conta.");
     } else {
+      const deleteRequests = await pool.query("DELETE FROM requests WHERE season_group_id = $1 RETURNING *", [id]);
       const deleteSeasons = await pool.query("DELETE FROM seasons WHERE season_group_id = $1 RETURNING *", [id]);
       const deleteMatchPlayers = await pool.query(
         "DELETE FROM matches_players USING matches_players AS mp LEFT JOIN players AS p ON p.player_id = mp.player_id WHERE group_id = $1",
