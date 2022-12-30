@@ -1,5 +1,7 @@
 import React, { Fragment } from "react";
 
+import FastSorting from "./FastSorting";
+
 const Home = () => {
   return (
     <Fragment>
@@ -17,6 +19,7 @@ const Home = () => {
           </div>
         </div>
       </div>
+      {/* <FastSorting /> */}
     </Fragment>
   );
 };
