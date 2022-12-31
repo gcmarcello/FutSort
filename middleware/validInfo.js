@@ -8,7 +8,7 @@ module.exports = async (req, res, next) => {
   }
 
   function validPassword(userPassword) {
-    return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/.test(userPassword);
+    return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%#*?&]{8,}$/.test(userPassword);
   }
 
   if (req.path === "/register") {
