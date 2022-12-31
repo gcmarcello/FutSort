@@ -97,4 +97,17 @@ router.delete("/deletegroup/:id", authorization, async (req, res) => {
   }
 });
 
+// Get list of groups of specific user
+router.get("/listgroups/player/", authorization, async (req, res) => {
+  try {
+    const groups = await pool.query("SELECT * FROM players AS p LEFT JOIN groups AS g ON p.group_id = g.group_id WHERE p.player_user = $1", [
+      req.user,
+    ]);
+    res.json(groups.rows);
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).json("Server Error");
+  }
+});
+
 module.exports = router;

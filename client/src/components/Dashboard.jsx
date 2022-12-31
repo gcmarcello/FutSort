@@ -4,6 +4,7 @@ import React, { Fragment, useState } from "react";
 import ListGroups from "./groups/listGroups";
 import ListMatches from "./matches/listMatches";
 import ListUserMatches from "./profiles/users/listUserMatches";
+import ListUserGroups from "./profiles/users/listUserGroups";
 import ListRequests from "./requests/listRequests";
 
 const Dashboard = ({ allGroups, setAllGroups }) => {
@@ -24,6 +25,7 @@ const Dashboard = ({ allGroups, setAllGroups }) => {
       <div className="container-fluid mt-3">
         <h2>Jogador</h2>
         <div className="d-flex flex-wrap mt-1" id="user-panel">
+          <ListUserGroups />
           <ListUserMatches />
         </div>
       </div>
