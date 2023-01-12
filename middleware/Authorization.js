@@ -13,8 +13,7 @@ module.exports = async (req, res, next) => {
     req.user = payload.user || "";
     req.userName = payload.userName;
   } catch (err) {
-    console.log(err.message);
-    return res.status(403).json("You are not authorized");
+    return res.json("You are not authorized");
   }
   next();
 };

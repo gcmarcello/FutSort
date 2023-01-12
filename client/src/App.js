@@ -89,7 +89,11 @@ function App() {
                 )
               }
             />
-            <Route exact path="/viewmatch/:id" element={<ViewMatch isAuthenticated={isAuthenticated} />} />
+            <Route
+              exact
+              path="/viewmatch/:id"
+              element={<ViewMatch isAuthenticated={isAuthenticated} setIsLoading={setIsLoading} isLoading={isLoading} />}
+            />
             <Route exact path="/group/:id" element={<GroupProfile isAuthenticated={isAuthenticated} />} />
             <Route
               exact

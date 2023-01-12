@@ -2,8 +2,9 @@ import React, { Fragment, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 import Loading from "../utils/Loading";
+import MvpVotes from "./mvpVotes";
 
-const ViewMatch = () => {
+const ViewMatch = ({ isAuthenticated, setIsLoading, isLoading }) => {
   let { id } = useParams();
   const [matchStats, setMatchStats] = useState([]);
   const [submitStats, setSubmitStats] = useState([]);
@@ -77,6 +78,13 @@ const ViewMatch = () => {
     <Fragment>
       {matchStats.length ? (
         <div className="container-fluid">
+          <MvpVotes
+            matchStats={matchStats}
+            matchStatus={matchStatus}
+            setIsLoading={setIsLoading}
+            isLoading={isLoading}
+            isAuthenticated={isAuthenticated}
+          />
           <h2 className="mt-3 text-center">
             {matchStats[0].group_name} - {matchStats[0].formattedDate}
           </h2>

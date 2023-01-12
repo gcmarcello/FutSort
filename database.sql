@@ -27,6 +27,9 @@ CREATE TABLE players(
     player_assists INTEGER,
     player_matches INTEGER,
     player_user UUID,
+    mvp_GK INTEGER,
+    mvp_DF INTEGER,
+    mvp_AT INTEGER,
     PRIMARY KEY (player_id),
     FOREIGN KEY (group_id) REFERENCES groups(group_id),
     FOREIGN KEY (player_user) REFERENCES users(user_id)
@@ -53,7 +56,7 @@ CREATE TABLE matches(
     match_date DATE,
     match_numofteams INTEGER,
     match_playersperteam INTEGER,
-    match_status BOOLEAN,
+    match_status VARCHAR(255),
     PRIMARY KEY (match_id),
     FOREIGN KEY (group_id) REFERENCES groups(group_id)
 );
@@ -66,6 +69,10 @@ CREATE TABLE matches_players(
     match_player_assists INTEGER,
     match_player_goalkeeper BOOLEAN,
     match_player_team INTEGER,
+    match_mvp_GK INTEGER,
+    match_mvp_DF INTEGER,
+    match_mvp_AT INTEGER,
+    match_player_voted BOOLEAN,
     PRIMARY KEY (matchplayer_id),
     FOREIGN KEY (match_id) REFERENCES matches(match_id),
     FOREIGN KEY (player_id) REFERENCES players(player_id)

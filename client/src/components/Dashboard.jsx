@@ -13,20 +13,71 @@ const Dashboard = ({ allGroups, setAllGroups }) => {
 
   return (
     <Fragment>
-      <div className="container-fluid mt-3">
-        <h2>Administrador</h2>
-        <div className="d-flex flex-wrap mt-1" id="admin-panel">
-          <ListGroups allGroups={allGroups} setAllGroups={setAllGroups} setGroupsChange={setGroupsChange} groupsChange={groupsChange} />
-          <ListMatches allGroups={allGroups} />
-          <ListRequests requestsChange={requestsChange} setRequestsChange={setRequestsChange} />
-        </div>
-      </div>
+      <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link active"
+            id="player-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#player"
+            type="button"
+            role="tab"
+            aria-controls="player"
+            aria-selected="false"
+          >
+            Jogador
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link "
+            id="admin-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#admin"
+            type="button"
+            role="tab"
+            aria-controls="admin"
+            aria-selected="true"
+          >
+            Administrador
+          </button>
+        </li>
 
-      <div className="container-fluid mt-3">
-        <h2>Jogador</h2>
-        <div className="d-flex flex-wrap mt-1" id="user-panel">
-          <ListUserGroups />
-          <ListUserMatches />
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="player-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#user"
+            type="button"
+            role="tab"
+            aria-controls="user"
+            aria-selected="false"
+            disabled
+          >
+            Usuário
+          </button>
+        </li>
+      </ul>
+      <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade " id="admin" role="tabpanel" aria-labelledby="admin-tab">
+          <div className="container-fluid mt-3">
+            <h2>Administrador</h2>
+            <div className="d-flex flex-wrap mt-1" id="admin-panel">
+              <ListGroups allGroups={allGroups} setAllGroups={setAllGroups} setGroupsChange={setGroupsChange} groupsChange={groupsChange} />
+              <ListMatches allGroups={allGroups} />
+            </div>
+            <ListRequests requestsChange={requestsChange} setRequestsChange={setRequestsChange} />
+          </div>
+        </div>
+        <div class="tab-pane fade show active" id="player" role="tabpanel" aria-labelledby="player-tab">
+          <div className="container-fluid mt-3">
+            <h2>Jogador</h2>
+            <div className="d-flex flex-wrap mt-1" id="user-panel">
+              <ListUserMatches />
+              <ListUserGroups />
+            </div>
+          </div>
         </div>
       </div>
     </Fragment>

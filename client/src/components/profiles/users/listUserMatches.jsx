@@ -88,8 +88,13 @@ const ListUserMatches = () => {
             <tr>
               <th>Data</th>
               <th>Grupo</th>
-              <th>Gols</th>
-              <th>Assistências</th>
+              <th>Status</th>
+              <th>
+                G<span className="d-none d-sm-inline-block">ols</span>
+              </th>
+              <th>
+                A<span className="d-none d-sm-inline-block">ssistências</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -108,6 +113,21 @@ const ListUserMatches = () => {
                     <Link to={`/viewmatch/${match.match_id}`} style={{ textDecoration: "underline" }}>
                       {match.group_name}
                     </Link>
+                  </td>
+                  <td>
+                    {match.match_status === "open" ? (
+                      <div className="d-flex">
+                        <span className="text-bg-success p-1 rounded">Aberta</span>
+                      </div>
+                    ) : match.match_status === "finished" ? (
+                      <div className="d-flex">
+                        <span className="text-bg-secondary p-1 rounded">Finalizada</span>
+                      </div>
+                    ) : (
+                      <div className="d-flex">
+                        <span className="text-bg-warning p-1 rounded">Votação</span>
+                      </div>
+                    )}
                   </td>
                   <td>{match.match_player_goals}</td>
                   <td>{match.match_player_assists}</td>

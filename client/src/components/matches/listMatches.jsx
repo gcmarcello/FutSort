@@ -110,13 +110,17 @@ const ListMatches = () => {
                     </Link>
                   </td>
                   <td>
-                    {!match.match_status ? (
+                    {match.match_status === "open" ? (
                       <div className="d-flex">
                         <span className="text-bg-success p-1 rounded">Aberta</span>
                       </div>
-                    ) : (
+                    ) : match.match_status === "finished" ? (
                       <div className="d-flex">
                         <span className="text-bg-secondary p-1 rounded">Finalizada</span>
+                      </div>
+                    ) : (
+                      <div className="d-flex">
+                        <span className="text-bg-warning p-1 rounded">Votação</span>
                       </div>
                     )}
                   </td>

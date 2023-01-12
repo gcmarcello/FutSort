@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect } from "react";
 
-const PlayerPick = ({ numberOfPlayers, setNumberOfPlayers, players, setPlayers, stars, sortingSteps, step }) => {
+const PlayerPick = ({ numberOfPlayers, setNumberOfPlayers, players, setPlayers, stars }) => {
   const handlePlayerChange = (e, player, key) => {
     setPlayers(
       players.map((selectedPlayer) => {
@@ -18,12 +18,8 @@ const PlayerPick = ({ numberOfPlayers, setNumberOfPlayers, players, setPlayers, 
     setPlayers([...players, { name: ``, stars: 0, index: nextIndex }]);
   };
 
-  const removePlayer = (index, playerIndex) => {
+  const removePlayer = (playerIndex) => {
     if (players.length > 1) {
-      let starsForm = document.getElementsByName(`radio-player-${index}`);
-      starsForm.forEach((star) => {
-        star.checked = false;
-      });
       setPlayers(players.filter((player) => player.index !== playerIndex));
     }
   };
@@ -54,7 +50,7 @@ const PlayerPick = ({ numberOfPlayers, setNumberOfPlayers, players, setPlayers, 
                     id={`remove-player-button-${index}`}
                     onClick={(e) => {
                       e.preventDefault();
-                      removePlayer(index, player.index);
+                      removePlayer(player.index);
                     }}
                   >
                     <i className="bi bi-x-circle fw-bolder"></i>
