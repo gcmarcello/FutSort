@@ -55,9 +55,8 @@ const MvpVotes = ({ setIsLoading, isLoading, matchStats, matchStatus, isAuthenti
         body: JSON.stringify(body),
       });
       const parseResponse = await parseData.json();
-      console.log(parseResponse);
       evaluateVotingCapability();
-      console.log(votingCapability);
+      fetchResults(); //TODO - fix need for a second fetch
     } catch (err) {
       console.log(err.message);
     }

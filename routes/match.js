@@ -341,10 +341,14 @@ router.post("/voting/:id/", authorization, async (req, res) => {
     const countATVote = await pool.query("UPDATE matches_players SET match_mvp_at = match_mvp_at + 1 WHERE player_id = $1 RETURNING *", [
       Number(voteAT),
     ]);
+
     const registerVote = await pool.query("UPDATE matches_players SET match_player_voted = $1 WHERE player_id = $2", [
       true,
       validateUser.rows[0].player_id,
     ]);
+    /*     const updatedResults = await pool.query(
+      "SELECT match_mvp_gk, match_mvp_df, match_mvp_at, player_name FROM matches_players as mp LEFT JOIN players AS p on mp.player_id = p.player_id WHERE mp.match_id = $1"
+    ); */
     res.status(200).json("Voto computado com sucesso.");
   } catch (err) {
     console.log(err.message);
@@ -357,23 +361,25 @@ router.get("/results/:id/", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const resultsGK = await pool.query(
-      "SELECT mp.match_mvp_gk , p.player_name FROM matches_players AS mp LEFT JOIN players AS p ON mp.player_id = p.player_id WHERE mp.match_mvp_gk > 0 ORDER BY mp.match_mvp_gk DESC LIMIT 3"
+    const resultsAll = await pool.query(
+      "SELECT mp.match_mvp_gk, mp.match_mvp_df, mp.match_mvp_at, p.player_name FROM matches_players AS mp LEFT JOIN players AS p ON mp.player_id = p.player_id WHERE mp.match_id = $1",
+      [id]
     );
 
-    const resultsDF = await pool.query(
-      "SELECT mp.match_mvp_df , p.player_name FROM matches_players AS mp LEFT JOIN players AS p ON mp.player_id = p.player_id WHERE mp.match_mvp_df > 0 ORDER BY mp.match_mvp_df DESC LIMIT 3"
-    );
+    const parseResults = (position) => {
+      return [...resultsAll.rows]
+        .sort((a, b) => b[position] - a[position])
+        .splice(0, 3)
+        .filter((player) => player[position] > 0);
+    };
 
-    const resultsAT = await pool.query(
-      "SELECT mp.match_mvp_at , p.player_name FROM matches_players AS mp LEFT JOIN players AS p ON mp.player_id = p.player_id WHERE mp.match_mvp_at > 0 ORDER BY mp.match_mvp_at DESC LIMIT 3"
-    );
-
-    const parsedGKResults = resultsGK.rows;
-    const parsedDFResults = resultsDF.rows;
-    const parsedATResults = resultsAT.rows;
-
-    return res.status(200).json({ parsedGKResults, parsedDFResults, parsedATResults });
+    return res
+      .status(200)
+      .json({
+        parsedGKResults: parseResults("match_mvp_gk"),
+        parsedDFResults: parseResults("match_mvp_df"),
+        parsedATResults: parseResults("match_mvp_at"),
+      });
   } catch (err) {
     console.log(err.message);
     res.status(500).json("Server Error");
