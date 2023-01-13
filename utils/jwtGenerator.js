@@ -7,7 +7,9 @@ function jwtGenerator(userId, userName) {
     userName: userName,
   };
 
-  return jwt.sign(payload, process.env.JWT_KEY, { expiresIn: "3hr" });
+  const expiration = process.env.NODE_ENV === "production" ? "3hr" : "1000hr";
+
+  return jwt.sign(payload, process.env.JWT_KEY, { expiresIn: expiration });
 }
 
 module.exports = jwtGenerator;

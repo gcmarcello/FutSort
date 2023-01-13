@@ -294,16 +294,25 @@ router.put("/editmatch/:id/", authorization, async (req, res) => {
 router.get("/voting/:id/", authorization, async (req, res) => {
   try {
     const { id } = req.params;
+    let arrayOfPlayers = [];
+    let arrayOfUsers = [];
 
-    const validateUser = await pool.query(
-      "SELECT DISTINCT * FROM matches_players AS mp LEFT JOIN players AS p ON mp.player_id = p.player_id WHERE mp.match_id = $1 AND p.player_user = $2",
-      [id, req.user]
-    );
-
-    if (!validateUser.rows[0]) {
+    const hasUserVoted = await pool.query("SELECT * FROM votes AS v WHERE v.user_id = $1", [req.user]);
+    if (hasUserVoted.rows[0]) {
       return res.json(false);
     }
-    if (validateUser.rows[0].match_player_voted) {
+
+    const matchPlayers = await pool.query(
+      "SELECT * FROM matches_players AS mp LEFT JOIN players AS p ON mp.player_id = p.player_id WHERE mp.match_id = $1",
+      [id]
+    );
+
+    matchPlayers.rows.map((player) => {
+      arrayOfPlayers.push(player.player_id);
+      arrayOfUsers.push(player.player_user);
+    });
+
+    if (!arrayOfUsers.includes(req.user)) {
       return res.json(false);
     }
 
@@ -319,37 +328,42 @@ router.post("/voting/:id/", authorization, async (req, res) => {
   try {
     const { id } = req.params;
     const { voteGK, voteDF, voteAT } = req.body;
+    let arrayOfPlayers = [];
+    let arrayOfUsers = [];
 
-    const validateUser = await pool.query(
-      "SELECT DISTINCT * FROM matches_players AS mp LEFT JOIN players AS p ON mp.player_id = p.player_id WHERE mp.match_id = $1 AND p.player_user = $2",
-      [id, req.user]
+    const hasUserVoted = await pool.query("SELECT * FROM votes AS v WHERE v.user_id = $1", [req.user]);
+    if (hasUserVoted.rows[0]) {
+      return res.json(false);
+    }
+
+    const matchPlayers = await pool.query(
+      "SELECT * FROM matches_players AS mp LEFT JOIN players AS p ON mp.player_id = p.player_id WHERE mp.match_id = $1",
+      [id]
     );
+    matchPlayers.rows.map((player) => {
+      arrayOfPlayers.push(player.player_id);
+      arrayOfUsers.push(player.player_user);
+    });
 
-    if (!validateUser.rows[0]) {
+    if (!arrayOfUsers.includes(req.user)) {
       return res.json(false);
     }
-    if (validateUser.rows[0].match_player_voted) {
+
+    if (!arrayOfPlayers.includes(Number(voteGK)) || !arrayOfPlayers.includes(Number(voteDF)) || !arrayOfPlayers.includes(Number(voteAT))) {
       return res.json(false);
     }
 
-    const countGKVote = await pool.query("UPDATE matches_players SET match_mvp_gk = match_mvp_gk + 1 WHERE player_id = $1 RETURNING *", [
-      Number(voteGK),
-    ]);
-    const countDFVote = await pool.query("UPDATE matches_players SET match_mvp_df = match_mvp_df + 1 WHERE player_id = $1 RETURNING *", [
-      Number(voteDF),
-    ]);
-    const countATVote = await pool.query("UPDATE matches_players SET match_mvp_at = match_mvp_at + 1 WHERE player_id = $1 RETURNING *", [
-      Number(voteAT),
+    const countVotes = await pool.query("INSERT INTO votes (user_id, match_id, mvp_gk, mvp_df, mvp_at) VALUES ($1,$2,$3,$4,$5)", [
+      req.user,
+      id,
+      voteGK,
+      voteDF,
+      voteAT,
     ]);
 
-    const registerVote = await pool.query("UPDATE matches_players SET match_player_voted = $1 WHERE player_id = $2", [
-      true,
-      validateUser.rows[0].player_id,
-    ]);
-    /*     const updatedResults = await pool.query(
-      "SELECT match_mvp_gk, match_mvp_df, match_mvp_at, player_name FROM matches_players as mp LEFT JOIN players AS p on mp.player_id = p.player_id WHERE mp.match_id = $1"
-    ); */
-    res.status(200).json("Voto computado com sucesso.");
+    const results = await pool.query("SELECT * FROM votes WHERE match_id = $1", [id]);
+
+    res.status(200).json(results.rows);
   } catch (err) {
     console.log(err.message);
     res.status(500).json("Server Error");
@@ -361,25 +375,52 @@ router.get("/results/:id/", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const resultsAll = await pool.query(
-      "SELECT mp.match_mvp_gk, mp.match_mvp_df, mp.match_mvp_at, p.player_name FROM matches_players AS mp LEFT JOIN players AS p ON mp.player_id = p.player_id WHERE mp.match_id = $1",
+    const allVotes = await pool.query("SELECT * FROM votes AS v WHERE v.match_id = $1", [id]);
+    const matchPlayers = await pool.query(
+      "SELECT mp.player_id, p.player_name FROM matches_players AS mp LEFT JOIN players AS p ON mp.player_id = p.player_id WHERE mp.match_id = $1",
       [id]
     );
 
-    const parseResults = (position) => {
-      return [...resultsAll.rows]
-        .sort((a, b) => b[position] - a[position])
-        .splice(0, 3)
-        .filter((player) => player[position] > 0);
+    const countVotes = (arr, key) => {
+      // Create an empty object to store frequency of each key value
+      let freq = {};
+      let ranking = [];
+
+      // Loop through the array and increment the count for each key value
+      for (let i = 0; i < arr.length; i++) {
+        let value = arr[i][key];
+        if (freq[value] === undefined) {
+          freq[value] = 1;
+        } else {
+          freq[value]++;
+        }
+      }
+
+      // Iterate over the object and return the key-value pairs where the value is greater than one
+      for (let key in freq) {
+        if (freq[key] > 0) {
+          ranking.push({
+            playerId: Number(key),
+            votes: freq[key],
+            playerName: matchPlayers.rows.find((player) => player["player_id"] === Number(key)).player_name,
+          });
+        }
+      }
+      return ranking;
     };
 
-    return res
-      .status(200)
-      .json({
-        parsedGKResults: parseResults("match_mvp_gk"),
-        parsedDFResults: parseResults("match_mvp_df"),
-        parsedATResults: parseResults("match_mvp_at"),
-      });
+    const parseVotes = (array) => {
+      return [...array]
+        .sort((a, b) => b.votes - a.votes)
+        .splice(0, 3)
+        .filter((player) => player.votes > 0);
+    };
+
+    return res.status(200).json({
+      parsedGKResults: parseVotes(countVotes(allVotes.rows, "mvp_gk")),
+      parsedDFResults: parseVotes(countVotes(allVotes.rows, "mvp_df")),
+      parsedATResults: parseVotes(countVotes(allVotes.rows, "mvp_at")),
+    });
   } catch (err) {
     console.log(err.message);
     res.status(500).json("Server Error");
@@ -420,19 +461,66 @@ router.put("/savevotes/:id/", authorization, async (req, res) => {
       "SELECT DISTINCT * FROM matches AS m LEFT JOIN groups AS g ON m.group_id = g.group_id WHERE m.match_id = $1 AND g.user_id = $2",
       [id, userID]
     );
-
     if (!validateUser.rows[0]) {
       return res.json("You are not authorized to do this.");
     }
 
-    const gkMVP = await pool.query("SELECT player_id FROM matches_players AS mp WHERE match_id = $1 ORDER BY mp.match_mvp_gk DESC LIMIT 1", [id]);
+    const fetchVotes = await pool.query("SELECT * FROM votes WHERE match_id = $1", [id]);
+    const matchPlayers = await pool.query(
+      "SELECT mp.player_id, p.player_name FROM matches_players AS mp LEFT JOIN players AS p ON mp.player_id = p.player_id WHERE mp.match_id = $1",
+      [id]
+    );
 
-    const dfMVP = await pool.query("SELECT player_id FROM matches_players AS mp WHERE match_id = $1 ORDER BY mp.match_mvp_df DESC LIMIT 1", [id]);
-    const atMVP = await pool.query("SELECT player_id FROM matches_players AS mp WHERE match_id = $1 ORDER BY mp.match_mvp_at DESC LIMIT 1", [id]);
+    const countVotes = (arr, key) => {
+      // Create an empty object to store frequency of each key value
+      let freq = {};
+      let ranking = [];
 
-    const countGK = await pool.query("UPDATE players SET mvp_gk = mvp_gk + 1 WHERE player_id = $1", [gkMVP.rows[0].player_id]);
-    const countDF = await pool.query("UPDATE players SET mvp_df = mvp_df + 1 WHERE player_id = $1", [dfMVP.rows[0].player_id]);
-    const countAT = await pool.query("UPDATE players SET mvp_at = mvp_at + 1 WHERE player_id = $1", [atMVP.rows[0].player_id]);
+      // Loop through the array and increment the count for each key value
+      for (let i = 0; i < arr.length; i++) {
+        let value = arr[i][key];
+        if (freq[value] === undefined) {
+          freq[value] = 1;
+        } else {
+          freq[value]++;
+        }
+      }
+
+      // Iterate over the object and return the key-value pairs where the value is greater than one
+      for (let key in freq) {
+        if (freq[key] > 0) {
+          ranking.push({
+            playerId: Number(key),
+            votes: freq[key],
+            playerName: matchPlayers.rows.find((player) => player["player_id"] === Number(key)).player_name,
+          });
+        }
+      }
+      return ranking;
+    };
+
+    const parseVotes = (array) => {
+      return [...array]
+        .sort((a, b) => b.votes - a.votes)
+        .splice(0, 3)
+        .filter((player) => player.votes > 0);
+    };
+
+    console.log({
+      parsedGKResults: parseVotes(countVotes(fetchVotes.rows, "mvp_gk")),
+      parsedDFResults: parseVotes(countVotes(fetchVotes.rows, "mvp_df")),
+      parsedATResults: parseVotes(countVotes(fetchVotes.rows, "mvp_at")),
+    });
+
+    const countGK = await pool.query("UPDATE players SET mvp_gk = mvp_gk + 1 WHERE player_id = $1", [
+      parseVotes(countVotes(fetchVotes.rows, "mvp_gk"))[0].playerId,
+    ]);
+    const countDF = await pool.query("UPDATE players SET mvp_df = mvp_df + 1 WHERE player_id = $1", [
+      parseVotes(countVotes(fetchVotes.rows, "mvp_df"))[0].playerId,
+    ]);
+    const countAT = await pool.query("UPDATE players SET mvp_at = mvp_at + 1 WHERE player_id = $1", [
+      parseVotes(countVotes(fetchVotes.rows, "mvp_at"))[0].playerId,
+    ]);
 
     const updateMatch = await pool.query("UPDATE matches SET match_status = $1 WHERE match_id = $2", ["finished", id]);
 

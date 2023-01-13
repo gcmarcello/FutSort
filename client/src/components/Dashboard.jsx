@@ -13,10 +13,10 @@ const Dashboard = ({ allGroups, setAllGroups }) => {
 
   return (
     <Fragment>
-      <ul class="nav nav-tabs" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation">
+      <ul className="nav nav-tabs" id="myTab" role="tablist">
+        <li className="nav-item" role="presentation">
           <button
-            class="nav-link active"
+            className="nav-link active"
             id="player-tab"
             data-bs-toggle="tab"
             data-bs-target="#player"
@@ -28,9 +28,9 @@ const Dashboard = ({ allGroups, setAllGroups }) => {
             Jogador
           </button>
         </li>
-        <li class="nav-item" role="presentation">
+        <li className="nav-item" role="presentation">
           <button
-            class="nav-link "
+            className="nav-link "
             id="admin-tab"
             data-bs-toggle="tab"
             data-bs-target="#admin"
@@ -43,9 +43,9 @@ const Dashboard = ({ allGroups, setAllGroups }) => {
           </button>
         </li>
 
-        <li class="nav-item" role="presentation">
+        <li className="nav-item" role="presentation">
           <button
-            class="nav-link"
+            className="nav-link"
             id="player-tab"
             data-bs-toggle="tab"
             data-bs-target="#user"
@@ -59,8 +59,8 @@ const Dashboard = ({ allGroups, setAllGroups }) => {
           </button>
         </li>
       </ul>
-      <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade " id="admin" role="tabpanel" aria-labelledby="admin-tab">
+      <div className="tab-content" id="myTabContent">
+        <div className="tab-pane fade " id="admin" role="tabpanel" aria-labelledby="admin-tab">
           <div className="container-fluid mt-3">
             <h2>Administrador</h2>
             <div className="d-flex flex-wrap mt-1" id="admin-panel">
@@ -70,7 +70,7 @@ const Dashboard = ({ allGroups, setAllGroups }) => {
             <ListRequests requestsChange={requestsChange} setRequestsChange={setRequestsChange} />
           </div>
         </div>
-        <div class="tab-pane fade show active" id="player" role="tabpanel" aria-labelledby="player-tab">
+        <div className="tab-pane fade show active" id="player" role="tabpanel" aria-labelledby="player-tab">
           <div className="container-fluid mt-3">
             <h2>Jogador</h2>
             <div className="d-flex flex-wrap mt-1" id="user-panel">

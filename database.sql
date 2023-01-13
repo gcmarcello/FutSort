@@ -101,6 +101,18 @@ CREATE TABLE password_resets(
     FOREIGN KEY(reset_user_id) REFERENCES users(user_id)
 );
 
+CREATE TABLE votes(
+    vote_id UUID DEFAULT UUID_generate_v4(),
+    user_id UUID NOT NULL,
+    match_id INTEGER NOT NULL,
+    mvp_GK INTEGER NOT NULL,
+    mvp_DF INTEGER NOT NULL,
+    mvp_AT INTEGER NOT NULL,
+    PRIMARY KEY(vote_id),
+    FOREIGN KEY(user_id) REFERENCES users(user_id),
+    FOREIGN KEY(match_id) REFERENCES matches(match_id)
+);
+
 --fake users data
 
 insert into users (user_name, user_email, user_password) values ('joao','joao@joao.com','senhaJoao123');

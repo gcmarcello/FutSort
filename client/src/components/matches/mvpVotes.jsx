@@ -1,20 +1,22 @@
 import React, { Fragment, useState } from "react";
 import Loading from "../utils/Loading";
 
-const MvpVotes = ({ setIsLoading, isLoading, matchStats, matchStatus, isAuthenticated }) => {
+const MvpVotes = ({ matchStats, matchStatus, isAuthenticated }) => {
   const [votes, setVotes] = useState({
     voteGK: "",
     voteDF: "",
     voteAT: "",
   });
   const [votingCapability, setVotingCapability] = useState(false);
-  const [results, setResults] = useState({});
+  const [results, setResults] = useState({ parsedGKResults: [], parsedDFResults: [], parsedATResults: [] });
   const [error, setError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { voteGK, voteDF, voteAT } = votes;
 
   const evaluateVotingCapability = async () => {
     try {
+      setIsLoading(true);
       const myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
@@ -25,6 +27,7 @@ const MvpVotes = ({ setIsLoading, isLoading, matchStats, matchStatus, isAuthenti
       });
       const parseData = await res.json();
       setVotingCapability(parseData);
+      setIsLoading(false);
     } catch (err) {
       console.log(err.message);
     }
@@ -64,6 +67,7 @@ const MvpVotes = ({ setIsLoading, isLoading, matchStats, matchStatus, isAuthenti
 
   const fetchResults = async () => {
     try {
+      setIsLoading(true);
       const myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
@@ -74,6 +78,7 @@ const MvpVotes = ({ setIsLoading, isLoading, matchStats, matchStatus, isAuthenti
       });
       const parseData = await res.json();
       setResults(parseData);
+      setIsLoading(false);
     } catch (err) {
       console.log(err.message);
     }
@@ -84,7 +89,9 @@ const MvpVotes = ({ setIsLoading, isLoading, matchStats, matchStatus, isAuthenti
     fetchResults();
   }, [matchStats]);
 
-  return (
+  return isLoading ? (
+    <Loading />
+  ) : (
     <Fragment>
       {votingCapability && isAuthenticated ? (
         <div className="card mt-3">
@@ -191,61 +198,55 @@ const MvpVotes = ({ setIsLoading, isLoading, matchStats, matchStatus, isAuthenti
                 <div className="col-12 col-lg-4 my-2">
                   <h5>Melhor Goleiro</h5>
                   <ol className="list-group list-group-numbered">
-                    {results.parsedGKResults ? (
-                      results.parsedGKResults.map((gk, index) => (
-                        <li key={`gk-${index}`} className="list-group-item d-flex justify-content-start align-items-start">
-                          <div className="ms-2 me-auto">
-                            <div className="fw-bold">{gk.player_name}</div>
-                          </div>
-                          <span className={`badge bg-${index === 0 ? `warning` : index === 1 ? `secondary` : `danger`} rounded-pill me-1`}>
-                            {gk.match_mvp_gk}
-                          </span>{" "}
-                          votos
-                        </li>
-                      ))
-                    ) : (
-                      <Loading />
-                    )}
+                    {results.parsedGKResults.length
+                      ? results.parsedGKResults.map((gk, index) => (
+                          <li key={`gk-${index}`} className="list-group-item d-flex justify-content-start align-items-start">
+                            <div className="ms-2 me-auto">
+                              <div className="fw-bold">{gk.playerName}</div>
+                            </div>
+                            <span className={`badge bg-${index === 0 ? `warning` : index === 1 ? `secondary` : `danger`} rounded-pill me-1`}>
+                              {gk.votes}
+                            </span>{" "}
+                            votos
+                          </li>
+                        ))
+                      : "Nenhum voto ainda foi computado."}
                   </ol>
                 </div>
                 <div className="col-12 col-lg-4 my-2">
                   <h5>Melhor Defensor</h5>
                   <ol className="list-group list-group-numbered">
-                    {results.parsedDFResults ? (
-                      results.parsedDFResults.map((df, index) => (
-                        <li key={`df-${index}`} className="list-group-item d-flex justify-content-start align-items-start">
-                          <div className="ms-2 me-auto">
-                            <div className="fw-bold">{df.player_name}</div>
-                          </div>
-                          <span className={`badge bg-${index === 0 ? `warning` : index === 1 ? `secondary` : `danger`} rounded-pill me-1`}>
-                            {df.match_mvp_df}
-                          </span>{" "}
-                          votos
-                        </li>
-                      ))
-                    ) : (
-                      <Loading />
-                    )}
+                    {results.parsedDFResults.length
+                      ? results.parsedDFResults.map((df, index) => (
+                          <li key={`df-${index}`} className="list-group-item d-flex justify-content-start align-items-start">
+                            <div className="ms-2 me-auto">
+                              <div className="fw-bold">{df.playerName}</div>
+                            </div>
+                            <span className={`badge bg-${index === 0 ? `warning` : index === 1 ? `secondary` : `danger`} rounded-pill me-1`}>
+                              {df.votes}
+                            </span>{" "}
+                            votos
+                          </li>
+                        ))
+                      : "Nenhum voto ainda foi computado."}
                   </ol>
                 </div>
                 <div className="col-12 col-lg-4 my-2">
                   <h5>Melhor Atacante</h5>
                   <ol className="list-group list-group-numbered">
-                    {results.parsedATResults ? (
-                      results.parsedATResults.map((at, index) => (
-                        <li key={`at-${index}`} className="list-group-item d-flex justify-content-start align-items-start">
-                          <div className="ms-2 me-auto">
-                            <div className="fw-bold">{at.player_name}</div>
-                          </div>
-                          <span className={`badge bg-${index === 0 ? `warning` : index === 1 ? `secondary` : `danger`} rounded-pill me-1`}>
-                            {at.match_mvp_at}
-                          </span>{" "}
-                          votos
-                        </li>
-                      ))
-                    ) : (
-                      <Loading />
-                    )}
+                    {results.parsedATResults.length
+                      ? results.parsedATResults.map((at, index) => (
+                          <li key={`at-${index}`} className="list-group-item d-flex justify-content-start align-items-start">
+                            <div className="ms-2 me-auto">
+                              <div className="fw-bold">{at.playerName}</div>
+                            </div>
+                            <span className={`badge bg-${index === 0 ? `warning` : index === 1 ? `secondary` : `danger`} rounded-pill me-1`}>
+                              {at.votes}
+                            </span>{" "}
+                            votos
+                          </li>
+                        ))
+                      : "Nenhum voto ainda foi computado."}
                   </ol>
                 </div>
               </div>
