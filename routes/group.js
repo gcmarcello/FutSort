@@ -8,8 +8,13 @@ const authorization = require("../middleware/Authorization");
 router.post("/creategroup", authorization, async (req, res) => {
   try {
     const { nameGroup } = req.body;
+    const checkNumberOfGroups = await pool.query("SELECT * FROM groups WHERE user_id = $1", [req.user]);
+    if (checkNumberOfGroups.rows.length > 4) {
+      return res.json({ type: "error", message: "Você não pode ter mais de 5 grupos ao mesmo tempo. Remova um para criar outro." });
+    }
+
     const newGroup = await pool.query("INSERT INTO groups (user_id, group_name) VALUES($1,$2) RETURNING *", [req.user, nameGroup]);
-    res.json(newGroup.rows[0]);
+    return res.json({ type: "success", message: "Grupo criado com sucesso." });
   } catch (err) {
     res.status(500).json(err);
   }
@@ -85,6 +90,10 @@ router.delete("/deletegroup/:id", authorization, async (req, res) => {
       const deleteSeasons = await pool.query("DELETE FROM seasons WHERE season_group_id = $1 RETURNING *", [id]);
       const deleteMatchPlayers = await pool.query(
         "DELETE FROM matches_players USING matches_players AS mp LEFT JOIN players AS p ON p.player_id = mp.player_id WHERE group_id = $1",
+        [id]
+      );
+      const deleteVotes = await pool.query(
+        "DELETE FROM votes USING votes AS v LEFT JOIN matches AS m ON v.match_id = m.match_id WHERE m.group_id = $1",
         [id]
       );
       const deleteMatches = await pool.query("DELETE FROM matches WHERE group_id = $1 RETURNING *", [id]);

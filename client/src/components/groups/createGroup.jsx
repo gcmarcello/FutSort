@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 const CreateGroup = ({ group, groupChange, setGroupChange }) => {
   const [nameGroup, setnameGroup] = useState("");
@@ -19,9 +20,10 @@ const CreateGroup = ({ group, groupChange, setGroupChange }) => {
         headers: myHeaders,
         body: JSON.stringify(body),
       });
-
-      // eslint-disable-next-line
       const parseResponse = await response.json();
+      parseResponse.type === "success"
+        ? toast.success(parseResponse.message, { theme: "colored" })
+        : toast.error(parseResponse.message, { theme: "colored" });
       setnameGroup("");
       setGroupChange(false);
     } catch (err) {
