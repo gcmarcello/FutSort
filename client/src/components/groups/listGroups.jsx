@@ -32,7 +32,7 @@ const ListGroups = () => {
   return (
     <Fragment>
       <div className="card flex-fill m-1 ">
-        <h4 className="card-header">Grupos </h4>
+        <h4 className="card-header">Grupos ({groups.length}/5) </h4>
 
         <table className="table table-lg" style={{ marginBottom: "0" }}>
           <thead>

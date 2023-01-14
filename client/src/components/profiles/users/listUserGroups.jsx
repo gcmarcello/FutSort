@@ -85,7 +85,7 @@ const ListUserGroups = () => {
             {currentPosts.length === 0 ? (
               <tr>
                 <td colSpan="4" className="text-center">
-                  Nenhuma Partida Encontrada. Conecte sua conta com um jogador de um dos grupos que você joga para ter acesso as estatísticas.
+                  Você ainda não está em nenhum grupo.
                 </td>
               </tr>
             ) : (

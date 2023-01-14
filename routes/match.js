@@ -30,6 +30,7 @@ router.post("/creatematch/", authorization, async (req, res) => {
       "INSERT INTO matches (group_id, match_date, match_numofteams, match_playersperteam, match_status) VALUES($1,$2,$3,$4,$5) RETURNING *",
       [groupId, matchDate, numberOfTeams, playersPerTeam, "open"]
     );
+
     const matchId = match.rows[0].match_id;
 
     for (let i = 0; i < pickedPlayers.length; i++) {
@@ -111,16 +112,16 @@ router.post("/creatematch/", authorization, async (req, res) => {
     for (let i = 0; i < teams.length; i++) {
       for (let j = 0; j < teams[0].length; j++) {
         const players = await pool.query(
-          "INSERT INTO matches_players (match_id, player_id,match_player_goals,match_player_assists,match_player_goalkeeper, match_player_team, match_mvp_gk, match_mvp_df, match_mvp_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *",
-          [matchId, teams[i][j].player_id, 0, 0, false, teams[i].teamNumber, 0, 0, 0]
+          "INSERT INTO matches_players (match_id, player_id,match_player_goals,match_player_assists,match_player_goalkeeper, match_player_team) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",
+          [matchId, teams[i][j].player_id, 0, 0, false, teams[i].teamNumber]
         );
       }
     }
 
     for (i = 0; i < pickedGoalkeepers.length; i++) {
       const keepers = await pool.query(
-        "INSERT INTO matches_players (match_id, player_id,match_player_goals,match_player_assists,match_player_goalkeeper, match_mvp_gk, match_mvp_df, match_mvp_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",
-        [matchId, pickedGoalkeepers[i], 0, 0, true, 0, 0, 0]
+        "INSERT INTO matches_players (match_id, player_id,match_player_goals,match_player_assists,match_player_goalkeeper) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",
+        [matchId, pickedGoalkeepers[i], 0, 0, true]
       );
     }
     res.json(matchId);
