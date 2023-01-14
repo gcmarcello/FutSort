@@ -93,7 +93,9 @@ const MvpVotes = ({ matchStats, matchStatus, isAuthenticated }) => {
     <Loading />
   ) : (
     <Fragment>
-      {votingCapability && isAuthenticated ? (
+      {matchStatus === "open" ? (
+        <Fragment />
+      ) : votingCapability && isAuthenticated ? (
         <div className="card mt-3">
           <h5 className="card-header">Melhores da Partida</h5>
           <div className="card-body">
