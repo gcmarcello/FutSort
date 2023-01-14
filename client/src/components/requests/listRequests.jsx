@@ -79,7 +79,9 @@ const ListRequests = ({ requestsChange, setRequestsChange }) => {
               ))
             ) : (
               <tr>
-                <td colSpan={4}>Você não tem nenhuma solicitação pendente!</td>
+                <td colSpan={4} className="text-center">
+                  Você não tem nenhuma solicitação pendente!
+                </td>
               </tr>
             )}
           </tbody>

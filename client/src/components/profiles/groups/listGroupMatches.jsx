@@ -96,7 +96,7 @@ const ListMatches = () => {
             {currentPosts.length === 0 ? (
               <tr>
                 <td colSpan="4" className="text-center">
-                  Nenhuma Partida Encontrada
+                  Nenhuma Partida Encontrada.
                 </td>
               </tr>
             ) : (

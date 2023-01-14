@@ -100,7 +100,7 @@ const ListUserMatches = () => {
           <tbody>
             {currentPosts.length === 0 ? (
               <tr>
-                <td colSpan="4" className="text-center">
+                <td colSpan="5" className="text-center">
                   Nenhuma Partida Encontrada. Conecte sua conta com um jogador de um dos grupos que você joga para ter acesso as estatísticas.
                 </td>
               </tr>
