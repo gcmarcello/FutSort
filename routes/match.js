@@ -120,7 +120,7 @@ router.post("/creatematch/", authorization, async (req, res) => {
 
     for (i = 0; i < pickedGoalkeepers.length; i++) {
       const keepers = await pool.query(
-        "INSERT INTO matches_players (match_id, player_id,match_player_goals,match_player_assists,match_player_goalkeeper) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",
+        "INSERT INTO matches_players (match_id, player_id,match_player_goals,match_player_assists,match_player_goalkeeper) VALUES ($1,$2,$3,$4,$5) RETURNING *",
         [matchId, pickedGoalkeepers[i], 0, 0, true]
       );
     }
