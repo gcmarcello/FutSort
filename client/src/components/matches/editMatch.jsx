@@ -212,9 +212,14 @@ const EditMatch = ({ isAuthenticated }) => {
             <Fragment />
           )}
           <div className="container-fluid">
-            <h2 className="mt-3 text-center">
-              {matchStats[0].group_name} - {matchStats[0].formattedDate}{" "}
-            </h2>
+            <div className="d-flex flex-wrap justify-content-center align-items-center">
+              <h2 className="mt-3 text-center align-middle">
+                {matchStats[0].group_name} - {matchStats[0].formattedDate}
+              </h2>
+              <a href={`/group/${matchStats[0].group_id}`}>
+                <div className="btn btn-success mx-3">Voltar ao grupo</div>
+              </a>
+            </div>
             <button className="btn btn-light w-100 my-1" onClick={toggleTeams}>
               Mostrar/Esconder Times
             </button>

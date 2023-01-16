@@ -31,9 +31,7 @@ const ViewMatch = ({ isAuthenticated, setIsLoading, isLoading }) => {
 
       setMatchStatus(parseData.responseStatus);
       setMatchStats(parseData.responseData);
-
       setMatchGoalkeepers(matchStats.filter((player) => player.match_player_goalkeeper === true));
-
       setMatchPlayers(matchStats.filter((player) => player.match_player_goalkeeper === false));
       setSubmitStats(parseData.responseData);
       setNumberOfTeams(parseData.responseNumberOfTeams);
@@ -53,7 +51,7 @@ const ViewMatch = ({ isAuthenticated, setIsLoading, isLoading }) => {
 
   const toggleTeams = () => {
     if (containerClass === "d-none") {
-      setContainerClass("d-flex flex-wrap justify-content-center");
+      setContainerClass("d-flex flex-wrap justify-content-center align-items-center");
     } else {
       setContainerClass("d-none");
     }
@@ -77,7 +75,15 @@ const ViewMatch = ({ isAuthenticated, setIsLoading, isLoading }) => {
   return (
     <Fragment>
       {matchStats.length ? (
-        <div className="container-fluid">
+        <div className="container-fluid my-3">
+          <div className="d-flex flex-wrap justify-content-center align-items-center">
+            <h2 className="mt-3 text-center">
+              {matchStats[0].group_name} - {matchStats[0].formattedDate}
+            </h2>
+            <a href={`/group/${matchStats[0].group_id}`}>
+              <div className="btn btn-success mx-3">Voltar ao grupo</div>
+            </a>
+          </div>
           <MvpVotes
             matchStats={matchStats}
             matchStatus={matchStatus}
@@ -85,9 +91,7 @@ const ViewMatch = ({ isAuthenticated, setIsLoading, isLoading }) => {
             isLoading={isLoading}
             isAuthenticated={isAuthenticated}
           />
-          <h2 className="mt-3 text-center">
-            {matchStats[0].group_name} - {matchStats[0].formattedDate}
-          </h2>
+
           <button className="btn btn-light w-100 my-1" onClick={toggleTeams}>
             Mostrar/Esconder Times
           </button>
