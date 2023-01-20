@@ -31,7 +31,7 @@ router.post("/createplayer/:id", authorization, async (req, res) => {
     console.log(validatePlayer.rows);
 
     const newPlayer = await pool.query(
-      "INSERT INTO players (group_id, player_name, player_stars,player_goals,player_assists,player_matches) VALUES($1,$2,$3,$4,$4,$4) RETURNING *",
+      "INSERT INTO players (group_id, player_name, player_stars,player_goals,player_assists,player_matches,mvp_gk,mvp_df,mvp_at) VALUES($1,$2,$3,$4,$4,$4,$4,$4,$4) RETURNING *",
       [id, addPlayerName, addPlayerStars, 0]
     );
     res.json(newPlayer.rows);

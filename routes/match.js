@@ -35,7 +35,7 @@ router.post("/creatematch/", authorization, async (req, res) => {
 
     for (let i = 0; i < pickedPlayers.length; i++) {
       const response = await pool.query(
-        "SELECT DISTINCT player_id, player_name, player_stars, player_goals, player_assists, player_matches FROM players WHERE player_id = $1",
+        "SELECT DISTINCT player_id, player_name, player_stars, player_goals, player_assists, player_matches, mvp_gk, mvp_df, mvp_at FROM players WHERE player_id = $1",
         [pickedPlayers[i]]
       );
       playersToSort.push(...response.rows);
@@ -51,11 +51,13 @@ router.post("/creatematch/", authorization, async (req, res) => {
     // Defining ratings to start team sorting proccess
     for (let i = 0; i < playersToSort.length; i++) {
       if (playersToSort[i].player_matches > 0) {
+        let mvpVotes = (playersToSort[i].mvp_gk + playersToSort[i].mvp_df + playersToSort[i].mvp_at) / 3;
         let starPoints =
           ((playersToSort[i].player_goals / playersToSort[i].player_matches / topScorerAvg) * 0.5 +
             (playersToSort[i].player_assists / playersToSort[i].player_matches / topAssistantAvg) * 0.5) *
           5;
         playersToSort[i].player_stars = starPoints;
+        playersToSort[i].player_mvps = mvpVotes;
       }
     }
 
@@ -86,6 +88,7 @@ router.post("/creatematch/", authorization, async (req, res) => {
     function teamMaker() {
       for (let i = 0; i < numberOfTeams; i++) {
         let sumOfStars = 0;
+        let sumOfMVPS = 0;
         var currentTeam = [];
         for (let j = 0; j < playersPerTeam; j++) {
           currentTeam.push(seeds[j][i]);
@@ -93,9 +96,11 @@ router.post("/creatematch/", authorization, async (req, res) => {
         }
         teams[i] = currentTeam;
         teams[i].teamAverage = sumOfStars / playersPerTeam;
+        teams[i].teamMVPS = sumOfMVPS;
         teams[i].teamNumber = i + 1;
       }
       teams = teams.sort((a, b) => a.teamAverage - b.teamAverage);
+      teamsMVPs = teams.sort((a, b) => a.teamMVPS - b.teamMVPS);
       return teams;
     }
 
@@ -105,7 +110,10 @@ router.post("/creatematch/", authorization, async (req, res) => {
       seedShuffler(seeds);
       teamMaker(seeds);
       attempts++;
-    } while (teams[teams.length - 1].teamAverage - teams[0].teamAverage > 0.5 || attempts === 4);
+    } while (
+      (teams[teams.length - 1].teamAverage - teams[0].teamAverage > 0.5 || teamsMVPs[teamsMVPs.length - 1].teamMVPS - teamsMVPs[0].teamMVPS > 3) &&
+      attempts === 10
+    );
 
     teams = teams.sort((a, b) => a.teamNumber - b.teamNumber);
 
@@ -507,21 +515,26 @@ router.put("/savevotes/:id/", authorization, async (req, res) => {
         .filter((player) => player.votes > 0);
     };
 
-    console.log({
-      parsedGKResults: parseVotes(countVotes(fetchVotes.rows, "mvp_gk")),
-      parsedDFResults: parseVotes(countVotes(fetchVotes.rows, "mvp_df")),
-      parsedATResults: parseVotes(countVotes(fetchVotes.rows, "mvp_at")),
-    });
+    for (let i = 0; i < parseVotes(countVotes(fetchVotes.rows, "mvp_gk")).length; i++) {
+      await pool.query("UPDATE players SET mvp_gk = mvp_gk + $1 WHERE player_id = $2", [
+        3 - i,
+        parseVotes(countVotes(fetchVotes.rows, "mvp_gk"))[i].playerId,
+      ]);
+    }
 
-    const countGK = await pool.query("UPDATE players SET mvp_gk = mvp_gk + 1 WHERE player_id = $1", [
-      parseVotes(countVotes(fetchVotes.rows, "mvp_gk"))[0].playerId,
-    ]);
-    const countDF = await pool.query("UPDATE players SET mvp_df = mvp_df + 1 WHERE player_id = $1", [
-      parseVotes(countVotes(fetchVotes.rows, "mvp_df"))[0].playerId,
-    ]);
-    const countAT = await pool.query("UPDATE players SET mvp_at = mvp_at + 1 WHERE player_id = $1", [
-      parseVotes(countVotes(fetchVotes.rows, "mvp_at"))[0].playerId,
-    ]);
+    for (let i = 0; i < parseVotes(countVotes(fetchVotes.rows, "mvp_df")).length; i++) {
+      await pool.query("UPDATE players SET mvp_df = mvp_df + $1 WHERE player_id = $2", [
+        3 - i,
+        parseVotes(countVotes(fetchVotes.rows, "mvp_df"))[i].playerId,
+      ]);
+    }
+
+    for (let i = 0; i < parseVotes(countVotes(fetchVotes.rows, "mvp_at")).length; i++) {
+      await pool.query("UPDATE players SET mvp_at = mvp_at + $1 WHERE player_id = $2", [
+        3 - i,
+        parseVotes(countVotes(fetchVotes.rows, "mvp_at"))[i].playerId,
+      ]);
+    }
 
     const updateMatch = await pool.query("UPDATE matches SET match_status = $1 WHERE match_id = $2", ["finished", id]);
 

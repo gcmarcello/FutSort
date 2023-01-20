@@ -1,5 +1,5 @@
 import React, { Fragment, useState, useEffect } from "react";
-import { useParams, useNavigate, Navigate } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import Loading from "../utils/Loading";
@@ -20,8 +20,6 @@ const EditMatch = ({ isAuthenticated }) => {
   const [numberOfTeams, setNumberOfTeams] = useState();
   const [containerClass, setContainerClass] = useState("d-flex flex-wrap justify-content-center");
   const [teamCardWidth, setTeamCardWidth] = useState({ width: "40%" });
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     getMatch();
@@ -172,7 +170,7 @@ const EditMatch = ({ isAuthenticated }) => {
           progress: undefined,
           theme: "colored",
         });
-        window.location = `/editmatch/${matchStats[0].match_id}`;
+        window.location = `/dashboard/`;
       } catch (err) {
         console.log(err.message);
       }
