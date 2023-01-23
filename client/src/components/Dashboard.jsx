@@ -10,7 +10,7 @@ import ListRequests from "./requests/listRequests";
 const Dashboard = ({ allGroups, setAllGroups }) => {
   const [groupsChange, setGroupsChange] = useState(false);
   const [requestsChange, setRequestsChange] = useState(false);
-  const [screen, setScreen] = useState("");
+  const [screen, setScreen] = useState("Jogador");
 
   const saveCurrentPanel = (panel) => {
     let settings = JSON.parse(localStorage.getItem("settings")) || {};
@@ -23,6 +23,8 @@ const Dashboard = ({ allGroups, setAllGroups }) => {
     if (localStorage.getItem("settings")) {
       let jsonSettings = JSON.parse(localStorage.getItem("settings"));
       setScreen(jsonSettings.panel);
+    } else {
+      saveCurrentPanel("Jogador");
     }
   }, [screen]);
 
