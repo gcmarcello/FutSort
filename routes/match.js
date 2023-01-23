@@ -306,7 +306,7 @@ router.get("/voting/:id/", authorization, async (req, res) => {
     let arrayOfPlayers = [];
     let arrayOfUsers = [];
 
-    const hasUserVoted = await pool.query("SELECT * FROM votes AS v WHERE v.user_id = $1", [req.user]);
+    const hasUserVoted = await pool.query("SELECT * FROM votes AS v WHERE v.user_id = $1 AND v.match_id = $2", [req.user, id]);
     if (hasUserVoted.rows[0]) {
       return res.json(false);
     }
