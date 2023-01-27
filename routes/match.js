@@ -349,6 +349,7 @@ router.post("/voting/:id/", authorization, async (req, res) => {
       "SELECT * FROM matches_players AS mp LEFT JOIN players AS p ON mp.player_id = p.player_id WHERE mp.match_id = $1",
       [id]
     );
+
     matchPlayers.rows.map((player) => {
       arrayOfPlayers.push(player.player_id);
       arrayOfUsers.push(player.player_user);

@@ -45,7 +45,12 @@ const MvpVotes = ({ matchStats, matchStatus, isAuthenticated }) => {
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
 
-      if (Object.values(votes).some((vote) => vote === "")) {
+      if (votes.voteAT === "" || votes.voteDF === "") {
+        setError(true);
+        return;
+      }
+
+      if (votes.voteGK === "" && matchStats.filter((player) => player.match_player_goalkeeper === true).length > 0) {
         setError(true);
         return;
       }

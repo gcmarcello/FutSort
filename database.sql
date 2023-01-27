@@ -105,9 +105,9 @@ CREATE TABLE votes(
     vote_id UUID DEFAULT UUID_generate_v4(),
     user_id UUID NOT NULL,
     match_id INTEGER NOT NULL,
-    mvp_GK INTEGER NOT NULL,
-    mvp_DF INTEGER NOT NULL,
-    mvp_AT INTEGER NOT NULL,
+    mvp_GK INTEGER,
+    mvp_DF INTEGER,
+    mvp_AT INTEGER,
     PRIMARY KEY(vote_id),
     FOREIGN KEY(user_id) REFERENCES users(user_id),
     FOREIGN KEY(match_id) REFERENCES matches(match_id)
