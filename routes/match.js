@@ -143,7 +143,7 @@ router.post("/creatematch/", authorization, async (req, res) => {
 router.get("/listmatches", authorization, async (req, res) => {
   try {
     const matches = await pool.query(
-      "SELECT * FROM matches AS m LEFT JOIN groups AS g ON m.group_id = g.group_id WHERE g.user_id = $1 ORDER BY m.match_status ASC, m.match_date DESC",
+      "SELECT * FROM matches AS m LEFT JOIN groups AS g ON m.group_id = g.group_id WHERE g.user_id = $1 ORDER BY m.match_status DESC, m.match_date DESC",
       [req.user]
     );
     res.json(matches.rows);
@@ -157,7 +157,7 @@ router.get("/listmatches", authorization, async (req, res) => {
 router.get("/listmatches/player/", authorization, async (req, res) => {
   try {
     const matches = await pool.query(
-      "SELECT * FROM matches_players AS mp LEFT JOIN players AS p ON mp.player_id = p.player_id LEFT JOIN groups AS g ON p.group_id = g.group_id LEFT JOIN matches AS m ON m.match_id = mp.match_id WHERE p.player_user = $1",
+      "SELECT * FROM matches_players AS mp LEFT JOIN players AS p ON mp.player_id = p.player_id LEFT JOIN groups AS g ON p.group_id = g.group_id LEFT JOIN matches AS m ON m.match_id = mp.match_id WHERE p.player_user = $1 ORDER BY m.match_date DESC",
       [req.user]
     );
     res.json(matches.rows);
