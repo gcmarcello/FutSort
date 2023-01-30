@@ -85,22 +85,21 @@ router.delete("/deletegroup/:id", authorization, async (req, res) => {
 
     if (!validateUser.rows.length) {
       return res.json("Esse grupo não pertence à sua conta.");
-    } else {
-      const deleteRequests = await pool.query("DELETE FROM requests WHERE group_id = $1 RETURNING *", [id]);
-      const deleteSeasons = await pool.query("DELETE FROM seasons WHERE season_group_id = $1 RETURNING *", [id]);
-      const deleteMatchPlayers = await pool.query(
-        "DELETE FROM matches_players USING matches_players AS mp LEFT JOIN players AS p ON p.player_id = mp.player_id WHERE group_id = $1",
-        [id]
-      );
-      const deleteVotes = await pool.query(
-        "DELETE FROM votes USING votes AS v LEFT JOIN matches AS m ON v.match_id = m.match_id WHERE m.group_id = $1",
-        [id]
-      );
-      const deleteMatches = await pool.query("DELETE FROM matches WHERE group_id = $1 RETURNING *", [id]);
-      const deletePlayers = await pool.query("DELETE FROM players WHERE group_id = $1 RETURNING *", [id]);
-      const deleteGroup = await pool.query("DELETE FROM groups WHERE group_id = $1 RETURNING *", [id]);
-      res.json("O grupo foi removido.");
     }
+    const deleteRequests = await pool.query("DELETE FROM requests WHERE group_id = $1 RETURNING *", [id]);
+    const deleteSeasons = await pool.query("DELETE FROM seasons WHERE season_group_id = $1 RETURNING *", [id]);
+    const deleteMatchPlayers = await pool.query(
+      "DELETE FROM matches_players USING matches_players AS mp LEFT JOIN players AS p ON p.player_id = mp.player_id WHERE group_id = $1",
+      [id]
+    );
+    const deleteVotes = await pool.query(
+      "DELETE FROM votes USING votes AS v LEFT JOIN matches AS m ON v.match_id = m.match_id WHERE m.group_id = $1",
+      [id]
+    );
+    const deleteMatches = await pool.query("DELETE FROM matches WHERE group_id = $1 RETURNING *", [id]);
+    const deletePlayers = await pool.query("DELETE FROM players WHERE group_id = $1 RETURNING *", [id]);
+    const deleteGroup = await pool.query("DELETE FROM groups WHERE group_id = $1 RETURNING *", [id]);
+    res.json("O grupo foi removido.");
   } catch (err) {
     console.log(err.message);
   }
