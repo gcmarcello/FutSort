@@ -1,17 +1,12 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useState } from "react";
+import { toast } from "react-toastify";
 
 const CreateMatch = ({ group, setGroupsChange }) => {
   const [playerList, setPlayerList] = useState([]);
   const [pickedPlayers, setPickedPlayers] = useState([]);
   const [pickedGoalkeepers, setPickedGoalkeepers] = useState([]);
   const [numberOfTeams, setNumberOfTeams] = useState(4);
-  const [playersPerTeam, setPlayersPerTeam] = useState(5);
-  const [playersNeeded, setPlayersNeeded] = useState(20);
   const [matchDate, setMatchDate] = useState(new Date().toISOString().slice(0, 10));
-  const [enableMatch, setEnableMatch] = useState({
-    disabled: false,
-    bsClass: "btn btn-outline-success",
-  });
 
   const getPlayers = async () => {
     try {
@@ -59,20 +54,6 @@ const CreateMatch = ({ group, setGroupsChange }) => {
     setPickedGoalkeepers(keeperArray);
   };
 
-  const buttonState = () => {
-    if (pickedPlayers.length === playersNeeded) {
-      setEnableMatch({
-        disabled: false,
-        bsClass: "btn btn-success",
-      });
-    } else {
-      setEnableMatch({
-        disabled: true,
-        bsClass: "btn btn-outline-success",
-      });
-    }
-  };
-
   const options = [
     { value: 2, text: "2" },
     { value: 3, text: "3" },
@@ -98,7 +79,6 @@ const CreateMatch = ({ group, setGroupsChange }) => {
         groupId,
         matchDate,
         numberOfTeams,
-        playersPerTeam,
         pickedPlayers,
         pickedGoalkeepers,
       };
@@ -109,20 +89,16 @@ const CreateMatch = ({ group, setGroupsChange }) => {
       });
 
       const parseResponse = await response.json();
+      console.log(parseResponse);
+      if (typeof parseResponse === "object") {
+        toast.error(parseResponse.message, { theme: "colored" });
+        return;
+      }
       window.location = `/editmatch/${parseResponse}`;
     } catch (err) {
       console.log(err.message);
     }
   };
-
-  useEffect(() => {
-    setPlayersNeeded(numberOfTeams * playersPerTeam);
-  }, [numberOfTeams, playersPerTeam]);
-
-  useEffect(() => {
-    buttonState();
-    // eslint-disable-next-line
-  }, [pickedPlayers, playersNeeded]);
 
   return (
     <Fragment>
@@ -138,7 +114,7 @@ const CreateMatch = ({ group, setGroupsChange }) => {
         ⚽<span className="d-none d-md-inline-block">Criar Partida</span>
       </button>
 
-      <div className="modal fade" id={`match-${group.group_id}`} tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div className="modal modal-lg fade" id={`match-${group.group_id}`} tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
@@ -149,7 +125,7 @@ const CreateMatch = ({ group, setGroupsChange }) => {
             </div>
             <form onSubmit={onSubmitForm}>
               <div className="modal-body">
-                <div className="d-flex row  my-3">
+                <div className="d-flex row mb-3">
                   <div className="col">
                     <label htmlFor={`numberofteams-input-${group.group_id}`}>Número de Times</label>
                     <select
@@ -159,25 +135,6 @@ const CreateMatch = ({ group, setGroupsChange }) => {
                       value={numberOfTeams}
                       onChange={(e) => {
                         setNumberOfTeams(e.target.value);
-                      }}
-                      required
-                    >
-                      {options.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.text}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="col">
-                    <label htmlFor={`playersperteam-input-${group.group_id}`}>Jogadores por Time</label>
-                    <select
-                      id={`playersperteam-input-${group.group_id}`}
-                      className="form-select"
-                      aria-label="Default select example"
-                      value={playersPerTeam}
-                      onChange={(e) => {
-                        setPlayersPerTeam(e.target.value);
                       }}
                       required
                     >
@@ -210,7 +167,7 @@ const CreateMatch = ({ group, setGroupsChange }) => {
                     <tr>
                       <th className="d-flex justify-content-center">
                         <h4 className="text-center">
-                          Jogadores: {pickedPlayers.length}/{playersNeeded} | Goleiros: {pickedGoalkeepers.length}
+                          Jogadores: {pickedPlayers.length} | Goleiros: {pickedGoalkeepers.length}
                         </h4>
                       </th>
                     </tr>
@@ -254,16 +211,15 @@ const CreateMatch = ({ group, setGroupsChange }) => {
                     ))}
                   </tbody>
                 </table>
-                {/*                 <h4 className="text-center">
-                  Jogadores: {pickedPlayers.length}/{playersNeeded} | Goleiros:{" "}
-                  {pickedGoalkeepers.length}
-                </h4> */}
+                <h4 className="text-center">
+                  Jogadores: {pickedPlayers.length} | Goleiros: {pickedGoalkeepers.length}
+                </h4>
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
                   Close
                 </button>
-                <button type="submit" className={enableMatch.bsClass} disabled={enableMatch.disabled}>
+                <button type="submit" className="btn btn-outline-success">
                   Criar Partida
                 </button>
               </div>

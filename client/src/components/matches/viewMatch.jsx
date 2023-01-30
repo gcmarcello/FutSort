@@ -51,7 +51,7 @@ const ViewMatch = ({ isAuthenticated, setIsLoading, isLoading }) => {
 
   const toggleTeams = () => {
     if (containerClass === "d-none") {
-      setContainerClass("d-flex flex-wrap justify-content-center align-items-center");
+      setContainerClass("d-flex flex-wrap justify-content-center");
     } else {
       setContainerClass("d-none");
     }

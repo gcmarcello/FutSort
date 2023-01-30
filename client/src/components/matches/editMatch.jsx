@@ -221,7 +221,7 @@ const EditMatch = ({ isAuthenticated }) => {
             <button className="btn btn-light w-100 my-1" onClick={toggleTeams}>
               Mostrar/Esconder Times
             </button>
-            <div className="d-flex flex-wrap justify-content-center">
+            <div className="d-flex flex-wrap flex-column justify-content-center">
               <div className={containerClass}>
                 {teams.map((team, index) => (
                   <div key={`${index + 1}`} className="card flex-fill m-1" style={teamCardWidth}>

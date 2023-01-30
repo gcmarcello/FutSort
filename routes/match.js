@@ -21,6 +21,114 @@ router.get("/creatematch/:id/playerlist", authorization, async (req, res) => {
 // Create Match Form Submit
 router.post("/creatematch/", authorization, async (req, res) => {
   try {
+    const { groupId, matchDate, numberOfTeams, pickedPlayers, pickedGoalkeepers } = req.body;
+
+    const openMatches = await pool.query("SELECT * FROM matches WHERE group_id = $1 AND match_status = $2", [groupId, "open"]);
+
+    if (openMatches.rows.length) {
+      res.status(400).json({ message: "Seu grupo ainda tem uma partida em aberto. Finalize para criar uma nova.", type: "error" });
+      return;
+    }
+
+    if (pickedPlayers.length <= 0) {
+      res
+        .status(400)
+        .json({ message: "Você não selecionou nenhum jogador. Por favor selecione ao menos um jogador para iniciar a partida!", type: "error" });
+      return;
+    }
+
+    let playersToSort = [];
+    let goalkeepersToSort = [];
+    let teams = [];
+
+    const match = await pool.query("INSERT INTO matches (group_id, match_date, match_numofteams, match_status) VALUES($1,$2,$3,$4) RETURNING *", [
+      groupId,
+      matchDate,
+      numberOfTeams,
+      "open",
+    ]);
+
+    const matchId = match.rows[0].match_id;
+
+    for (let i = 0; i < pickedPlayers.length; i++) {
+      const response = await pool.query(
+        "SELECT DISTINCT player_id, player_name, player_stars, player_goals, player_assists, player_matches, mvp_gk, mvp_df, mvp_at FROM players WHERE player_id = $1",
+        [pickedPlayers[i]]
+      );
+      playersToSort.push(...response.rows);
+    }
+
+    for (let i = 0; i < pickedGoalkeepers.length; i++) {
+      const response = await pool.query(
+        "SELECT DISTINCT player_id, player_name, player_stars, player_goals, player_assists, player_matches, mvp_gk, mvp_df, mvp_at FROM players WHERE player_id = $1",
+        [pickedGoalkeepers[i]]
+      );
+      response.rows[0].goalkeeper = true;
+      goalkeepersToSort.push(...response.rows);
+    }
+
+    // Defining Top Scorer and Assistants from chosen players to use as reference
+    playersToSort.map((player) => {
+      player.goalAvg = player.player_goals / player.player_matches || 0;
+      player.assistAvg = player.player_assists / player.player_matches || 0;
+    });
+    const topScorerAvg = playersToSort.sort((a, b) => b.goalAvg - a.goalAvg)[0].goalAvg;
+    const topAssistantAvg = playersToSort.sort((c, d) => d.assistAvg - c.assistAvg)[0].assistAvg;
+
+    // Defining ratings to start team sorting proccess
+    for (let i = 0; i < playersToSort.length; i++) {
+      if (playersToSort[i].player_matches > 0) {
+        let mvpVotes = playersToSort[i].mvp_gk + playersToSort[i].mvp_df + playersToSort[i].mvp_at;
+        playersToSort[i].player_stars =
+          (playersToSort[i].goalAvg / topScorerAvg / 2 + playersToSort[i].assistAvg / topAssistantAvg / 3 + mvpVotes / 4) * 5;
+      }
+    }
+
+    teams = Array.from({ length: numberOfTeams }, (element, index) => ({
+      players: [],
+      skill: 0,
+      index: index + 1,
+    }));
+
+    playersToSort.sort((a, b) => b.player_stars - a.player_stars);
+    const teamSize = Math.floor(playersToSort.length / numberOfTeams);
+    let sortedPlayers = [];
+
+    for (const player of playersToSort) {
+      teams.sort((a, b) => a.skill - b.skill);
+      let team = teams[0];
+      if (team.players.length >= teamSize) {
+        teams.sort((a, b) => a.players.length - b.players.length);
+      }
+      team = teams[0];
+      player.team = teams[0].index;
+      team.players.push(player);
+      let totalSkill = 0;
+      totalSkill = team.players.reduce((acc, player) => acc + player.player_stars, 0);
+      team.skill += player.player_stars;
+      sortedPlayers.push(player);
+    }
+
+    goalkeepersToSort.forEach((goalkeeper) => sortedPlayers.push(goalkeeper));
+
+    const playersSQL = sortedPlayers
+      .map((player) => `('${matchId}','${player.player_id}','${0}','${0}',${Boolean(player.goalkeeper)},${player.team || null})`)
+      .join(",");
+
+    const players = await pool.query(
+      `INSERT INTO matches_players (match_id, player_id,match_player_goals,match_player_assists,match_player_goalkeeper, match_player_team) VALUES ${playersSQL}`
+    );
+
+    res.status(200).json(matchId);
+  } catch (err) {
+    console.log(err.message);
+    res.status(500).json("Server Error");
+  }
+});
+
+// Create Match Form Submit
+router.post("/creatematch/old", authorization, async (req, res) => {
+  try {
     const { groupId, matchDate, numberOfTeams, playersPerTeam, pickedPlayers, pickedGoalkeepers } = req.body;
     let playersToSort = [];
     let seeds = [];
