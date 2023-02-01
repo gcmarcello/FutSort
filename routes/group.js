@@ -89,7 +89,7 @@ router.delete("/deletegroup/:id", authorization, async (req, res) => {
     const deleteRequests = await pool.query("DELETE FROM requests WHERE group_id = $1 RETURNING *", [id]);
     const deleteSeasons = await pool.query("DELETE FROM seasons WHERE season_group_id = $1 RETURNING *", [id]);
     const deleteMatchPlayers = await pool.query(
-      "DELETE FROM matches_players USING matches_players AS mp LEFT JOIN matches AS m ON m.match_id = mp.match_id WHERE m.group_id = $1",
+      "DELETE FROM matches_players AS mp LEFT JOIN matches AS m ON m.match_id = mp.match_id WHERE m.group_id = $1",
       [id]
     );
     const deleteVotes = await pool.query(
