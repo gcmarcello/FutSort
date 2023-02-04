@@ -71,16 +71,21 @@ router.post("/creatematch/", authorization, async (req, res) => {
     playersToSort.map((player) => {
       player.goalAvg = player.player_goals / player.player_matches || 0;
       player.assistAvg = player.player_assists / player.player_matches || 0;
+      player.mvps = player.mvp_df + player.mvp_at;
     });
     const topScorerAvg = playersToSort.sort((a, b) => b.goalAvg - a.goalAvg)[0].goalAvg;
     const topAssistantAvg = playersToSort.sort((c, d) => d.assistAvg - c.assistAvg)[0].assistAvg;
+    const mvpSort = playersToSort.sort((a, b) => b.mvps - a.mvps);
 
     // Defining ratings to start team sorting proccess
     for (let i = 0; i < playersToSort.length; i++) {
       if (playersToSort[i].player_matches > 0) {
         let mvpVotes = playersToSort[i].mvp_gk + playersToSort[i].mvp_df + playersToSort[i].mvp_at;
         playersToSort[i].player_stars =
-          (playersToSort[i].goalAvg / topScorerAvg / 2 + playersToSort[i].assistAvg / topAssistantAvg / 3 + mvpVotes / 4) * 5;
+          (playersToSort[i].goalAvg / topScorerAvg / 2 +
+            playersToSort[i].assistAvg / topAssistantAvg / 2 +
+            playersToSort[i].mvps / mvpSort[0].mvps / 4) *
+          5;
       }
     }
 
