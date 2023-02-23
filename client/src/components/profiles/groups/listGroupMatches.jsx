@@ -89,7 +89,6 @@ const ListMatches = () => {
             <tr>
               <th>Data</th>
               <th>Status</th>
-              <th>Jogadores</th>
             </tr>
           </thead>
           <tbody>
@@ -123,7 +122,6 @@ const ListMatches = () => {
                       </div>
                     )}
                   </td>
-                  <td>{match.match_numofteams * match.match_playersperteam}</td>
                 </tr>
               ))
             )}

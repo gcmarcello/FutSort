@@ -322,13 +322,11 @@ router.get("/listmatchplayers/:id/", async (req, res) => {
     }
 
     const responseData = matches.rows;
-    const responsePlayersPerTeam = responseData[0].match_playersperteam;
     const responseStatus = responseData[0].match_status;
     const responseNumberOfTeams = responseData[0].match_numofteams;
 
     res.json({
       responseData,
-      responsePlayersPerTeam,
       responseNumberOfTeams,
       responseStatus,
       responseUserAuth,
@@ -366,13 +364,11 @@ router.get("/listmatchplayers/edit/:id/", authorization, async (req, res) => {
     }
 
     const responseData = matches.rows;
-    const responsePlayersPerTeam = responseData[0].match_playersperteam;
     const responseStatus = responseData[0].match_status;
     const responseNumberOfTeams = responseData[0].match_numofteams;
 
     res.json({
       responseData,
-      responsePlayersPerTeam,
       responseNumberOfTeams,
       responseStatus,
       responseUserAuth,
@@ -406,8 +402,9 @@ router.put("/editmatch/:id/", authorization, async (req, res) => {
 
     const matchStatus = await pool.query("SELECT match_status FROM matches AS m WHERE m.match_id = $1", [id]);
     const responseStatus = matchStatus.rows[0].match_status;
-    return res.json({ responseData, responseStatus });
+    return res.status(200).json({ responseData, responseStatus });
   } catch (err) {
+    return res.status(400).json({ message: "Erro ao enviar dados. Por favor atualize a página.", type: "error" });
     console.log(err.message);
   }
 });
