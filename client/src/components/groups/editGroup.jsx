@@ -212,7 +212,8 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
                       <input
                         type="range"
                         min="1"
-                        max="5"
+                        step="1"
+                        max="10"
                         className="form-range"
                         id="add-player-range"
                         value={addPlayerStars}
