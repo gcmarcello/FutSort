@@ -16,6 +16,7 @@ import Loading from "./components/utils/Loading";
 import NavigationBar from "./components/utils/NavigationBar";
 import GroupProfile from "./components/profiles/groups/GroupProfile";
 import PasswordReset from "./components/PasswordReset";
+import CreateMatch from "./components/matches/createMatch";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -122,6 +123,10 @@ function App() {
                   <Login setIsAuthenticated={setIsAuthenticated} />
                 )
               }
+            />
+            <Route
+              path="/creatematch/:id"
+              element={isAuthenticated ? <CreateMatch isAuthenticated={isAuthenticated} /> : <Navigate to="/dashboard/" />}
             />
             <Route
               path="/editmatch/:id"

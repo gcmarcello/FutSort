@@ -50,8 +50,10 @@ const ListGroups = () => {
                   <td>{group.group_name}</td>
                   {/* <td className="d-none d-sm-table-cell">20</td> */}
                   <td>
+                    <a href={`/creatematch/${group.group_id}`} className="btn btn-primary mx-1" role="button">
+                      <span className="d-none d-md-inline-block">Criar Partida</span>
+                    </a>
                     {<EditGroup group={group} groupChange={groupChange} setGroupChange={setGroupChange} />}
-                    <CreateMatch group={group} />
                     <a href={`/group/${group.group_id}`} className="btn btn-secondary mx-1" role="button">
                       📊 <span className="d-none d-md-inline-block">Estatísticas</span>
                     </a>
