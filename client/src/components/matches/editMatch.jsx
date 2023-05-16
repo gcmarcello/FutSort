@@ -30,6 +30,7 @@ const EditMatch = () => {
         });
         const parseData = await res.json();
         setMatchStats(parseData.playersStatus);
+        setMatchStatus(parseData.matchStatus);
         setTeams(Array.from(Array(parseData.matchStatus.match_numofteams).keys()));
       } catch (err) {
         console.log(err.message);

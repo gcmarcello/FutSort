@@ -21,7 +21,7 @@ const MvpVotes = ({ matchStats, matchStatus, isAuthenticated }) => {
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
 
-      const res = await fetch(`/api/match/voting/${matchStats[0].match_id}`, {
+      const res = await fetch(`/api/match/voting/${matchStatus[0].match_id}`, {
         method: "GET",
         headers: myHeaders,
       });
@@ -57,7 +57,7 @@ const MvpVotes = ({ matchStats, matchStatus, isAuthenticated }) => {
 
       const body = { voteGK, voteDF, voteAT };
 
-      const parseData = await fetch(`/api/match/voting/${matchStats[0].match_id}`, {
+      const parseData = await fetch(`/api/match/voting/${matchStatus[0].match_id}`, {
         method: "POST",
         headers: myHeaders,
         body: JSON.stringify(body),

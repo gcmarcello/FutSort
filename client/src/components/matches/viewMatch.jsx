@@ -11,7 +11,7 @@ const ViewMatch = ({ isAuthenticated, setIsLoading, isLoading }) => {
   const [matchPlayers, setMatchPlayers] = useState([]);
   const [matchGoalkeepers, setMatchGoalkeepers] = useState([]);
   // eslint-disable-next-line
-  const [matchStatus, setMatchStatus] = useState();
+  const [matchStatus, setMatchStatus] = useState(null);
   const [teams, setTeams] = useState([]);
   const [numberOfTeams, setNumberOfTeams] = useState();
   const [containerClass, setContainerClass] = useState("d-flex flex-wrap justify-content-center");

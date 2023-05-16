@@ -2,6 +2,7 @@ const router = require("express").Router();
 const { json } = require("express");
 const pool = require("../db");
 const authorization = require("../middleware/Authorization");
+const verifyOwnership = require("../middleware/verifyOwnership");
 
 // Retrieve Players for Match Pick
 router.get("/creatematch/:id/playerlist", authorization, async (req, res) => {
@@ -434,11 +435,9 @@ router.get("/results/:id/", async (req, res) => {
 });
 
 // Finish match
-router.put("/finishmatch/:id/", authorization, async (req, res) => {
+router.put("/finishmatch/:id/", [authorization, verifyOwnership("match")], async (req, res) => {
   try {
-    const { id } = req.params;
     const matchStats = req.body;
-    const userID = req.user;
     let responseData = [];
 
     for (let i = 0; i < matchStats.length; i++) {
