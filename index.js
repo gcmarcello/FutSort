@@ -37,9 +37,7 @@ app.use("/api/season", require("./routes/season"));
 app.use("/api/password", require("./routes/password"));
 
 /* React Routes */
-
-const clientPath = path.resolve(__dirname, "/client");
-const buildPath = path.join(clientPath, "build");
+const buildPath = path.join(__dirname, "client/build");
 
 if (process.env.NODE_ENV === "development") {
   app.get(/^\/static\/js\/main\.[a-f0-9]{8}\.js\.map$/, (req, res) => {
