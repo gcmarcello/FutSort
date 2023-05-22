@@ -38,7 +38,7 @@ app.use("/api/password", require("./routes/password"));
 
 /* React Routes */
 
-const clientPath = path.resolve(__dirname, "/client");
+const clientPath = path.resolve(__dirname, "app/client");
 const buildPath = path.join(clientPath, "build");
 
 if (process.env.NODE_ENV === "development") {
