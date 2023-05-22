@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from "react";
 import Loading from "../utils/Loading";
 
-const MvpVotes = ({ matchStats, matchStatus, isAuthenticated }) => {
+const MvpVotes = ({ matchStats, matchStatus, id }) => {
   const [votes, setVotes] = useState({
     voteGK: "",
     voteDF: "",
@@ -21,7 +21,7 @@ const MvpVotes = ({ matchStats, matchStatus, isAuthenticated }) => {
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
 
-      const res = await fetch(`/api/match/voting/${matchStatus[0].match_id}`, {
+      const res = await fetch(`/api/match/voting/${id}`, {
         method: "GET",
         headers: myHeaders,
       });
@@ -57,7 +57,7 @@ const MvpVotes = ({ matchStats, matchStatus, isAuthenticated }) => {
 
       const body = { voteGK, voteDF, voteAT };
 
-      const parseData = await fetch(`/api/match/voting/${matchStatus[0].match_id}`, {
+      const parseData = await fetch(`/api/match/voting/${id}`, {
         method: "POST",
         headers: myHeaders,
         body: JSON.stringify(body),
@@ -77,7 +77,7 @@ const MvpVotes = ({ matchStats, matchStatus, isAuthenticated }) => {
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("token", localStorage.token);
 
-      const res = await fetch(`/api/match/results/${matchStats[0].match_id}`, {
+      const res = await fetch(`/api/match/results/${id}`, {
         method: "GET",
         headers: myHeaders,
       });
@@ -98,10 +98,8 @@ const MvpVotes = ({ matchStats, matchStatus, isAuthenticated }) => {
     <Loading />
   ) : (
     <Fragment>
-      {matchStatus === "open" ? (
-        <Fragment />
-      ) : votingCapability && isAuthenticated ? (
-        <div className="card mt-3">
+      {votingCapability ? (
+        <div className="card my-3">
           <h5 className="card-header">Melhores da Partida</h5>
           <div className="card-body">
             <form>
@@ -197,7 +195,7 @@ const MvpVotes = ({ matchStats, matchStatus, isAuthenticated }) => {
           </div>
         </div>
       ) : (
-        <div className="card mt-3">
+        <div className="card my-3">
           <h5 className="card-header">Melhores da Partida - Ranking</h5>
           <div className="card-body">
             <div className="container-fluid">

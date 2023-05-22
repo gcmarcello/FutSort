@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import RequestPasswordReset from "./RequestPasswordReset";
+import { Link } from "react-router-dom";
 
 const Login = ({ setIsAuthenticated }) => {
   const [inputs, setInputs] = useState({
@@ -87,9 +88,9 @@ const Login = ({ setIsAuthenticated }) => {
                     />
                     <hr />
                     <div className="d-flex">
-                      <a role="button" className="form-control btn btn-secondary mx-1" href="/register">
+                      <Link role="button" className="form-control btn btn-secondary mx-1" to="/cadastro">
                         Registre-se
-                      </a>
+                      </Link>
                       <input type="submit" className="form-control btn btn-success mx-1" value={"Login"} disabled={submitButton} />
                     </div>
                   </form>

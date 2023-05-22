@@ -2,6 +2,8 @@ import React, { Fragment, useState, useEffect } from "react";
 import EditGroup from "./editGroup";
 import CreateMatch from "../matches/createMatch";
 import CreateGroup from "./createGroup";
+import Table from "../utils/table";
+import { Link } from "react-router-dom";
 
 const ListGroups = () => {
   const [groups, setGroups] = useState([]);
@@ -25,6 +27,25 @@ const ListGroups = () => {
     }
   };
 
+  const columns = [
+    { Header: "Nome", accessor: "group_name" },
+    {
+      Header: "Opções",
+      accessor: "group_id",
+      Cell: ({ value }) => (
+        <>
+          <Link to={`/creatematch/${value}`} className="btn btn-primary mx-1">
+            ⚽ <span className="d-none d-md-inline-block">Criar Partida</span>
+          </Link>
+          <EditGroup group={groups.filter((group) => group.group_id === value)[0]} groupChange={groupChange} setGroupChange={setGroupChange} />
+          <Link to={`/grupo/${value}`} className="btn btn-secondary mx-1">
+            📊 <span className="d-none d-md-inline-block">Estatísticas</span>
+          </Link>
+        </>
+      ),
+    },
+  ];
+
   useEffect(() => {
     getGroups();
   }, [groupChange]);
@@ -33,35 +54,7 @@ const ListGroups = () => {
     <Fragment>
       <div className="card flex-fill m-1 ">
         <h4 className="card-header">Grupos ({groups.length}/5) </h4>
-
-        <table className="table table-lg" style={{ marginBottom: "0" }}>
-          <thead>
-            <tr>
-              <th>Nome</th>
-              {/* <th className="d-none d-sm-table-cell">Jogadores</th> */}
-              <th>Opções</th>
-            </tr>
-          </thead>
-          <tbody>
-            {groups.length !== 0 &&
-              groups[0].group_id !== null &&
-              groups.map((group) => (
-                <tr key={group.group_id} id={`${group.group_id}`}>
-                  <td>{group.group_name}</td>
-                  {/* <td className="d-none d-sm-table-cell">20</td> */}
-                  <td>
-                    <a href={`/creatematch/${group.group_id}`} className="btn btn-primary mx-1" role="button">
-                      <span className="d-none d-md-inline-block">Criar Partida</span>
-                    </a>
-                    {<EditGroup group={group} groupChange={groupChange} setGroupChange={setGroupChange} />}
-                    <a href={`/group/${group.group_id}`} className="btn btn-secondary mx-1" role="button">
-                      📊 <span className="d-none d-md-inline-block">Estatísticas</span>
-                    </a>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+        <Table data={groups} columns={columns} disablePagination={true} disableFilter={true} customPageSize={5} />
         <div className="accordion accordion-flush m-1" id="accordionNewGroup">
           <div className="accordion-item">
             <h2 className="accordion-header" id="headingOne">

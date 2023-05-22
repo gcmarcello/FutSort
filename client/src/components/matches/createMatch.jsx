@@ -210,7 +210,7 @@ const CreateMatch = () => {
       });
       const parseResponse = await response.json();
       if (parseResponse.id) {
-        navigate(`/editmatch/${parseResponse.id}`);
+        navigate(`/partida/${parseResponse.id}`);
       }
     } catch (error) {
       console.log(error);
@@ -356,9 +356,13 @@ const CreateMatch = () => {
       <div className="bg-light">
         <div className="px-lg-5 py-lg-5">
           <div className="p-3 bg-white rounded rounded-2 shadow">
-            <h1>Criar Partida</h1>
+            <div className="d-flex justify-content-between">
+              <h1>Criar Partida</h1>{" "}
+              <button className="btn btn-secondary my-auto" onClick={() => navigate("/painel")}>
+                <i className="bi bi-arrow-left"></i>
+              </button>
+            </div>
             <hr />
-
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="row">
                 {!generatedTeams && <MatchSettings />}
@@ -434,7 +438,7 @@ const CreateMatch = () => {
         </div>
       </div>
 
-      <div className="mt-5" style={{ height: hiddenBar ? "0px" : "80px" }}>
+      <div className="mt-0" style={{ height: hiddenBar ? "0px" : "80px" }}>
         <button
           onClick={(e) => {
             e.preventDefault();
@@ -448,7 +452,7 @@ const CreateMatch = () => {
         <div
           className={`create-match-footer bg-success ${
             hiddenBar && "h-0"
-          } d-flex justify-content-evenly justify-content-lg-end align-items-center w-100 ${!isAtBottom && "shadow-lg"}`}
+          } d-flex justify-content-evenly justify-content-lg-end align-items-center w-100 pe-3 ${!isAtBottom && "shadow-lg"}`}
           style={{ opacity: hiddenBar ? "0" : "1", height: hiddenBar ? "0px" : "80px" }}
         >
           {!generatedTeams && !hiddenBar && (
@@ -484,7 +488,7 @@ const CreateMatch = () => {
               Alterar
             </button>
           )}
-          <button className="btn btn-outline-light mx-2" onClick={() => onSubmit(getValues())}>
+          <button className="btn btn-outline-light mx-3" onClick={() => onSubmit(getValues())}>
             {generatedTeams ? "Resortear" : "Sortear"}
           </button>
           {generatedTeams && !hiddenBar && (

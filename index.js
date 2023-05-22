@@ -37,22 +37,34 @@ app.use("/api/season", require("./routes/season"));
 app.use("/api/password", require("./routes/password"));
 
 /* React Routes */
-// Serve react files
-app.use(express.static(path.join(__dirname, "client/build")));
-// Home Page
-app.use("/", express.static(path.join(__dirname, "client/build")));
-// Register
-app.use("/register", express.static(path.join(__dirname, "client/build")));
-// Dashboard
-app.use("/dashboard", express.static(path.join(__dirname, "client/build")));
-// Edit Matches
-app.use("/editmatch/*", express.static(path.join(__dirname, "client/build")));
-// View Matches
-app.use("/viewmatch/*", express.static(path.join(__dirname, "client/build")));
-// View Groups
-app.use("/group/*", express.static(path.join(__dirname, "client/build")));
-// Reset Password
-app.use("/password/*", express.static(path.join(__dirname, "client/build")));
+
+const clientPath = path.resolve(__dirname, "../client");
+const buildPath = path.join(clientPath, "build");
+
+if (process.env.NODE_ENV === "development") {
+  app.get(/^\/static\/js\/main\.[a-f0-9]{8}\.js\.map$/, (req, res) => {
+    const fileName = req.url.slice(1);
+    res.sendFile(path.join(buildPath, fileName));
+  });
+  app.get(/^\/static\/css\/main\.[a-f0-9]{8}\.css\.map$/, (req, res) => {
+    const fileName = req.url.slice(1);
+    res.sendFile(path.join(buildPath, fileName));
+  });
+}
+
+app.get(/^\/static\/js\/main\.[a-f0-9]{8}\.js$/, (req, res) => {
+  const fileName = req.url.slice(1);
+  res.sendFile(path.join(buildPath, fileName));
+});
+app.get(/^\/static\/css\/main\.[a-f0-9]{8}\.css$/, (req, res) => {
+  const fileName = req.url.slice(1);
+  res.sendFile(path.join(buildPath, fileName));
+});
+
+process.env.NODE_ENV === "production" &&
+  app.get("/**", (req, res) => {
+    res.sendFile(path.join(buildPath, "index.html"));
+  });
 
 app.listen(port, () => {
   console.log(

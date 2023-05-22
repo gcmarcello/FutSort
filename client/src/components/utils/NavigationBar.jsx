@@ -1,5 +1,6 @@
 import React, { Fragment, useState } from "react";
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const NavigationBar = ({ isAuthenticated, setIsAuthenticated }) => {
   const [name, setName] = useState("");
@@ -29,7 +30,6 @@ const NavigationBar = ({ isAuthenticated, setIsAuthenticated }) => {
       try {
         localStorage.removeItem("token");
         setIsAuthenticated(false);
-        window.location = "/dashboard";
       } catch (err) {
         console.log(err.message);
       }
@@ -67,7 +67,7 @@ const NavigationBar = ({ isAuthenticated, setIsAuthenticated }) => {
               {isAuthenticated ? (
                 <ul className="navbar-nav justify-content-end flex-grow-1">
                   <li className="nav-item">
-                    <a className="btn btn-outline-light me-3" aria-current="page" href="/dashboard">
+                    <a className="btn btn-outline-light me-3" aria-current="page" href="/painel">
                       <i className="bi bi-house-door"></i> Painel
                     </a>
                   </li>
@@ -80,14 +80,14 @@ const NavigationBar = ({ isAuthenticated, setIsAuthenticated }) => {
               ) : (
                 <ul className="navbar-nav justify-content-end flex-grow-1 pe-3 list">
                   <li className="mx-1 my-1">
-                    <a className="btn btn-light " href="/dashboard">
+                    <a className="btn btn-light " href="/painel">
                       Login
                     </a>
                   </li>
                   <li className="mx-1 my-1">
-                    <a className="btn btn-secondary " href="/register">
+                    <Link className="btn btn-secondary " to="/cadastro">
                       Registrar
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               )}

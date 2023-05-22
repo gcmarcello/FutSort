@@ -87,7 +87,7 @@ const PasswordReset = ({ setIsAuthenticated }) => {
   }
 
   if (typeof requestStatus === "string") {
-    return <Navigate to="/dashboard" element={toast.error(`${requestStatus}`, { theme: "colored" })} />;
+    return <Navigate to="/painel" element={toast.error(`${requestStatus}`, { theme: "colored" })} />;
   }
 
   return (

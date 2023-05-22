@@ -103,7 +103,7 @@ const ListMatches = () => {
               currentPosts.map((match) => (
                 <tr key={`match-${match.match_id}`} id={`match-${match.match_id}`}>
                   <td>
-                    <Link to={`/viewmatch/${match.match_id}`} style={{ textDecoration: "underline" }}>
+                    <Link to={`/partida/${match.match_id}`} style={{ textDecoration: "underline" }}>
                       {match.formattedDate}
                     </Link>
                   </td>

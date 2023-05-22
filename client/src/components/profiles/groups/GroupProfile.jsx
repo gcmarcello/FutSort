@@ -1,36 +1,20 @@
 import React, { Fragment, useState } from "react";
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 // Dashboard Components
 import ListGroupMatches from "./listGroupMatches";
 import ListGroupSeasons from "./listGroupSeasons";
 import Pagination from "../../Pagination";
+import Table from "../../utils/table";
 
 const GroupProfile = ({ isAuthenticated }) => {
   const { id } = useParams();
   const [ranking, setRanking] = useState([]);
   const [groupName, setGroupName] = useState();
-  const [sortDirection, setSortDirection] = useState({
-    player_name: "DESC",
-    player_goals: "DESC",
-    player_assists: "DESC",
-    player_matches: "DESC",
-  });
   const [requestAvailability, setRequestAvailability] = useState(true);
-  const [filteredPlayers, setFilteredPlayers] = useState([]);
-  const [postsPerPage, setPostsPerPage] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
-  let pageNumbers = [];
-
-  // Get current posts
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = filteredPlayers.slice(indexOfFirstPost, indexOfLastPost);
-
-  // Change page
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const navigate = useNavigate();
 
   const getGroup = async () => {
     try {
@@ -116,34 +100,6 @@ const GroupProfile = ({ isAuthenticated }) => {
     }
   };
 
-  const sortData = async (field) => {
-    let sortedPlayers = [...ranking];
-
-    if (sortDirection[field] === "ASC") {
-      sortedPlayers.sort(function (a, b) {
-        if (a[field] < b[field]) {
-          return -1;
-        }
-        if (a[field] > b[field]) {
-          return 1;
-        }
-        return 0;
-      });
-    } else if (sortDirection[field] === "DESC") {
-      sortedPlayers.sort(function (a, b) {
-        if (a[field] > b[field]) {
-          return -1;
-        }
-        if (a[field] < b[field]) {
-          return 1;
-        }
-        return 0;
-      });
-    }
-    sortDirection[field] === "ASC" ? setSortDirection({ ...sortDirection, [field]: "DESC" }) : setSortDirection({ ...sortDirection, [field]: "ASC" });
-    setRanking(sortedPlayers);
-  };
-
   useEffect(() => {
     preventRequests();
     getGroup();
@@ -152,106 +108,44 @@ const GroupProfile = ({ isAuthenticated }) => {
     // eslint-disable-next-line
   }, []);
 
-  useEffect(() => {
-    for (let i = 1; i <= Math.ceil(filteredPlayers.length / postsPerPage); i++) {
-      pageNumbers.push(i);
-    }
-    // eslint-disable-next-line
-  }, [postsPerPage]);
-
-  useEffect(() => {
-    setFilteredPlayers(ranking);
-  }, [ranking]);
+  const columns = [
+    { Header: "Nome", accessor: "player_name" },
+    { Header: "G", accessor: "player_goals" },
+    { Header: "A", accessor: "player_assists" },
+    { Header: "P", accessor: "player_matches" },
+    {
+      Header: "Usuário",
+      accessor: "user_name",
+      Cell: ({ value, row }) =>
+        value ? (
+          <i className="bi bi-patch-check-fill text-primary"> {value}</i>
+        ) : (
+          requestAvailability && (
+            <button
+              type="link"
+              className="btn btn-link text-secondary link-button"
+              style={{ padding: "0" }}
+              onClick={() => sendRequest(row.original.player_id)}
+            >
+              <i className="bi bi-link-45deg fs-6">Link</i>
+            </button>
+          )
+        ),
+    },
+  ];
 
   return (
     <Fragment>
       <div className="container my-3">
         <div className="d-flex justify-content-between mb-3">
           <h1>{groupName || "Carregando..."}</h1>
-          {
-            //TODO: Implement follow group tool
-            /* <button type="button" className="btn btn-primary">
-            <i className="bi bi-plus-circle"> </i>Seguir
-          </button> */
-          }
+          <button className="btn btn-secondary my-auto" onClick={() => navigate("/painel")}>
+            <i className="bi bi-arrow-left"></i>
+          </button>
         </div>
-
-        <table className="table">
-          <thead className="table-light">
-            <tr>
-              <th>
-                J<span className="d-none d-md-inline">ogador</span>
-                <i
-                  role="button"
-                  className={`bi bi-caret-${sortDirection.player_name === "ASC" ? "up" : "down"}-fill`}
-                  onClick={() => sortData("player_name")}
-                ></i>
-              </th>
-              <th>
-                G<span className="d-none d-md-inline">ols</span>
-                <i
-                  role="button"
-                  className={`bi bi-caret-${sortDirection.player_goals === "ASC" ? "up" : "down"}-fill`}
-                  onClick={() => sortData("player_goals")}
-                ></i>
-              </th>
-              <th>
-                A<span className="d-none d-md-inline">ssistências</span>
-                <i
-                  role="button"
-                  className={`bi bi-caret-${sortDirection.player_assists === "ASC" ? "up" : "down"}-fill`}
-                  onClick={() => sortData("player_assists")}
-                ></i>
-              </th>
-              <th>
-                P<span className="d-none d-md-inline">artidas</span>
-                <i
-                  role="button"
-                  className={`bi bi-caret-${sortDirection.player_matches === "ASC" ? "up" : "down"}-fill`}
-                  onClick={() => sortData("player_matches")}
-                ></i>
-              </th>
-              {isAuthenticated ? <th>Usuário</th> : <Fragment />}
-            </tr>
-          </thead>
-          <tbody className="table-borderless">
-            {currentPosts.map((player) => (
-              <tr key={`player-row-${player.player_id}`}>
-                <td>{player.player_name}</td>
-                <td>{player.player_goals}</td>
-                <td>{player.player_assists}</td>
-                <td>{player.player_matches}</td>
-                {isAuthenticated ? (
-                  <td>
-                    {player.user_name ? (
-                      <i className="bi bi-patch-check-fill text-primary"> {player.user_name}</i>
-                    ) : requestAvailability ? (
-                      <button
-                        type="link"
-                        className="btn btn-link text-secondary link-button"
-                        style={{ padding: "0" }}
-                        onClick={() => sendRequest(player.player_id)}
-                      >
-                        <i className="bi bi-link-45deg fs-6">Link</i>
-                      </button>
-                    ) : (
-                      <Fragment />
-                    )}
-                  </td>
-                ) : (
-                  <Fragment />
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <Pagination
-          postsPerPage={postsPerPage}
-          setPostsPerPage={setPostsPerPage}
-          totalPosts={ranking.length}
-          setCurrentPage={setCurrentPage}
-          paginate={paginate}
-        />
+        <hr />
+        <h3>Jogadores</h3>
+        <Table data={ranking} columns={columns} disablePagination={true} enableBottomPagination={true} />
         <div className="d-flex flex-wrap mt-1">
           <ListGroupMatches />
           <ListGroupSeasons />

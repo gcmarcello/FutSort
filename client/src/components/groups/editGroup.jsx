@@ -1,6 +1,7 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Table from "../utils/table";
 
 const EditGroup = ({ group, groupChange, setGroupChange }) => {
   const [nameGroup, setNameGroup] = useState(group.group_name);
@@ -13,7 +14,7 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
   const [seasonYear, setSeasonYear] = useState(now.getFullYear());
   const [confirmName, setConfirmName] = useState("");
   const [finishSeasonButtonState, setFinishButtonState] = useState(true);
-  const [containerClass, setContainerClass] = useState("d-table");
+  const [hidePlayers, setHidePlayers] = useState(false);
 
   const getPlayers = async () => {
     try {
@@ -106,7 +107,7 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
           method: "DELETE",
           headers: myHeaders,
         });
-        window.location = "/dashboard";
+        window.location = "/painel";
       } catch (err) {
         console.log(err.message);
       }
@@ -132,14 +133,6 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
       }
     } catch (err) {
       console.log(err.message);
-    }
-  };
-
-  const togglePlayers = () => {
-    if (containerClass === "d-none") {
-      setContainerClass("d-table");
-    } else {
-      setContainerClass("d-none");
     }
   };
 
@@ -224,30 +217,20 @@ const EditGroup = ({ group, groupChange, setGroupChange }) => {
                   <button className="btn btn-success btn-block form-control mt-3">Adicionar</button>
                 </form>
               </div>
-              <button className="btn btn-light form-control" onClick={() => togglePlayers()}>
+              <button className="btn btn-light form-control my-2" onClick={() => setHidePlayers(!hidePlayers)}>
                 Mostrar/Esconder Jogadores
               </button>
-              <div className="table-responsive mt-3">
-                <table className={`table ${containerClass}`} id={`group-${group.group_id}-players`}>
-                  <thead className="table-light">
-                    <tr>
-                      <th>Jogador</th>
-                      <th>Gols</th>
-                      <th>Assists</th>
-                      <th>Partidas</th>
-                    </tr>
-                  </thead>
-                  <tbody className="table-borderless">
-                    {playerList.map((player) => (
-                      <tr key={`player-row-${player.player_id}`}>
-                        <td>{player.player_name}</td>
-                        <td>{player.player_goals}</td>
-                        <td>{player.player_assists}</td>
-                        <td>{player.player_matches}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className={`my-3 ${hidePlayers && "d-none"}`}>
+                <Table
+                  data={playerList}
+                  columns={[
+                    { Header: "Nome", accessor: "player_name" },
+                    { Header: "G", accessor: "player_goals" },
+                    { Header: "A", accessor: "player_assists" },
+                    { Header: "P", accessor: "player_matches" },
+                  ]}
+                  disablePagination={true}
+                />
               </div>
               <div className="d-flex">
                 <button type="button" className="btn btn-warning flex-fill" data-bs-target={`#finishSeason-${group.group_id}`} data-bs-toggle="modal">

@@ -3,6 +3,8 @@ const { json } = require("express");
 const pool = require("../db");
 const authorization = require("../middleware/Authorization");
 const verifyOwnership = require("../middleware/verifyOwnership");
+const { parseVotes, countVotes } = require("../utils/votingFunctions");
+const enableAdmin = require("../middleware/enableAdmin");
 
 // Retrieve Players for Match Pick
 router.get("/creatematch/:id/playerlist", authorization, async (req, res) => {
@@ -237,30 +239,32 @@ router.get("/listmatchplayers/:id/", async (req, res) => {
 });
 
 // Get Match Details (View/Edit pages)
-router.get("/:id/", authorization, async (req, res) => {
+router.get("/:id/", enableAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    var responseUserAuth;
+    const { user } = req;
 
     const validateUser = await pool.query(
       "SELECT DISTINCT * FROM matches AS m LEFT JOIN groups AS g ON m.group_id = g.group_id WHERE m.match_id = $1 AND g.user_id = $2",
-      [id, req.user]
+      [id, user]
     );
-
-    validateUser.rows.length < 1 ? (responseUserAuth = false) : (responseUserAuth = true);
 
     const players = await pool.query(
       "SELECT matchplayer_id, p.player_id, match_player_goals, match_player_assists, match_player_goalkeeper, match_player_team, match_player_voted, match_mvp_gk, match_mvp_df, match_mvp_at, player_name FROM matches_players AS mp LEFT JOIN matches AS m ON mp.match_id = m.match_id LEFT JOIN groups AS g ON m.group_id = g.group_id LEFT JOIN players as p ON p.player_id = mp.player_id WHERE mp.match_id = $1 ORDER BY p.player_name ASC, m.match_date DESC",
       [id]
     );
 
-    const match = await pool.query("SELECT * FROM matches WHERE match_id = $1", [id]);
+    const match = await pool.query(
+      "SELECT match_id, match_date, match_numofteams, match_status, group_name, matches.group_id FROM matches LEFT JOIN groups ON matches.group_id = groups.group_id WHERE match_id = $1",
+      [id]
+    );
 
     const matchStatus = match.rows[0];
     const playersStatus = players.rows;
     res.status(200).json({
       matchStatus,
       playersStatus,
+      isAdmin: validateUser.rows[0] ? true : false,
     });
   } catch (err) {
     console.log(err.message);
@@ -269,7 +273,7 @@ router.get("/:id/", authorization, async (req, res) => {
 });
 
 // Update values from match
-router.put("/:id/players/", authorization, async (req, res) => {
+router.put("/:id/statistics/", authorization, async (req, res) => {
   try {
     const { id } = req.params;
     const { playerToUpdate } = req.body;
@@ -434,183 +438,47 @@ router.get("/results/:id/", async (req, res) => {
   }
 });
 
-// Finish match
-router.put("/finishmatch/:id/", [authorization, verifyOwnership("match")], async (req, res) => {
+// Alter Match Status
+router.put("/:id/:status", [authorization, verifyOwnership("match")], async (req, res) => {
   try {
-    const matchStats = req.body;
+    const { id, status } = req.params;
     let responseData = [];
+    let responseMessage = null;
+    const matchStats = (await pool.query("SELECT * FROM matches_players WHERE match_id = $1", [id])).rows;
 
-    for (let i = 0; i < matchStats.length; i++) {
-      const updateMatch = await pool.query(
-        "UPDATE players SET player_goals = player_goals + $1, player_assists = player_assists + $2, player_matches = player_matches + 1 WHERE player_id = $3 RETURNING *",
-        [matchStats[i].match_player_goals, matchStats[i].match_player_assists, matchStats[i].player_id]
-      );
-      responseData.push(...updateMatch.rows);
+    switch (status) {
+      case "votes":
+        for (let i = 0; i < matchStats.length; i++) {
+          const updateMatch = await pool.query(
+            "UPDATE players SET player_goals = player_goals + $1, player_assists = player_assists + $2, player_matches = player_matches + 1 WHERE player_id = $3 RETURNING *",
+            [matchStats[i].match_player_goals, matchStats[i].match_player_assists, matchStats[i].player_id]
+          );
+          responseData.push(...updateMatch.rows);
+        }
+        responseMessage = "Votação iniciada!";
+      case "finished":
+        const fetchVotes = await pool.query("SELECT * FROM votes WHERE match_id = $1", [id]);
+        const voteTypes = ["mvp_gk", "mvp_df", "mvp_at"];
+
+        for (const voteType of voteTypes) {
+          const votes = parseVotes(countVotes(fetchVotes.rows, voteType, matchStats));
+
+          for (let i = 0; i < Math.min(votes.length, 3); i++) {
+            const { playerId } = votes[i];
+            const updateValue = 3 - i;
+
+            await pool.query(`UPDATE players SET ${voteType} = ${voteType} + $1 WHERE player_id = $2`, [updateValue, playerId]);
+          }
+        }
+        responseMessage = "Partida finalizada com sucesso!";
+      default:
+        break;
     }
-    const finishMatch = await pool.query("UPDATE matches SET match_status = $1 WHERE match_id = $2", ["votes", matchStats[0].match_id]);
-
-    return res.json(responseData);
+    const updateMatch = await pool.query("UPDATE matches SET match_status = $1 WHERE match_id = $2", [status, id]);
+    return res.status(200).json({ message: responseMessage, type: "success" });
   } catch (err) {
     console.log(err.message);
-  }
-});
-
-// Save votes
-router.put("/savevotes/:id/", authorization, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const userID = req.user;
-    let responseData = [];
-
-    const validateUser = await pool.query(
-      "SELECT DISTINCT * FROM matches AS m LEFT JOIN groups AS g ON m.group_id = g.group_id WHERE m.match_id = $1 AND g.user_id = $2",
-      [id, userID]
-    );
-    if (!validateUser.rows[0]) {
-      return res.json("You are not authorized to do this.");
-    }
-
-    const fetchVotes = await pool.query("SELECT * FROM votes WHERE match_id = $1", [id]);
-    const matchPlayers = await pool.query(
-      "SELECT mp.player_id, p.player_name FROM matches_players AS mp LEFT JOIN players AS p ON mp.player_id = p.player_id WHERE mp.match_id = $1",
-      [id]
-    );
-
-    const countVotes = (arr, key) => {
-      // Create an empty object to store frequency of each key value
-      let freq = {};
-      let ranking = [];
-
-      // Loop through the array and increment the count for each key value
-      for (let i = 0; i < arr.length; i++) {
-        let value = arr[i][key];
-        if (freq[value] === undefined) {
-          freq[value] = 1;
-        } else {
-          freq[value]++;
-        }
-      }
-
-      // Iterate over the object and return the key-value pairs where the value is greater than one
-      for (let key in freq) {
-        if (freq[key] > 0) {
-          ranking.push({
-            playerId: Number(key),
-            votes: freq[key],
-            playerName: matchPlayers.rows.find((player) => player["player_id"] === Number(key)).player_name,
-          });
-        }
-      }
-      return ranking;
-    };
-
-    const parseVotes = (array) => {
-      return [...array]
-        .sort((a, b) => b.votes - a.votes)
-        .splice(0, 3)
-        .filter((player) => player.votes > 0);
-    };
-
-    for (let i = 0; i < parseVotes(countVotes(fetchVotes.rows, "mvp_gk")).length; i++) {
-      await pool.query("UPDATE players SET mvp_gk = mvp_gk + $1 WHERE player_id = $2", [
-        3 - i,
-        parseVotes(countVotes(fetchVotes.rows, "mvp_gk"))[i].playerId,
-      ]);
-    }
-
-    for (let i = 0; i < parseVotes(countVotes(fetchVotes.rows, "mvp_df")).length; i++) {
-      await pool.query("UPDATE players SET mvp_df = mvp_df + $1 WHERE player_id = $2", [
-        3 - i,
-        parseVotes(countVotes(fetchVotes.rows, "mvp_df"))[i].playerId,
-      ]);
-    }
-
-    for (let i = 0; i < parseVotes(countVotes(fetchVotes.rows, "mvp_at")).length; i++) {
-      await pool.query("UPDATE players SET mvp_at = mvp_at + $1 WHERE player_id = $2", [
-        3 - i,
-        parseVotes(countVotes(fetchVotes.rows, "mvp_at"))[i].playerId,
-      ]);
-    }
-
-    const updateMatch = await pool.query("UPDATE matches SET match_status = $1 WHERE match_id = $2", ["finished", id]);
-
-    return res.json("Votação Finalizada!");
-  } catch (err) {
-    console.log(err.message);
-  }
-});
-
-// Fast Sorting
-router.post("/fastsorting/", async (req, res) => {
-  try {
-    const { players, teams } = req.body;
-    let sortedTeams;
-    let averageDifference = 10;
-    let attempts = 0;
-
-    const teamMaker = () => {
-      const playersPerTeam = Math.round(players.length / teams.length);
-      let playersToSort = [...players];
-      const individualTeam = [];
-      sortedTeams = Array.from({ length: teams.length }, () => [...individualTeam]);
-      let seeds = [];
-
-      playersToSort.sort((e, f) => f.stars - e.stars);
-
-      for (let i = 0; i < teams.length; i++) {
-        seeds[i] = playersToSort.splice(0, playersPerTeam);
-      }
-
-      if (playersToSort.length > 0) {
-        playersToSort.sort((e, f) => e.stars - f.stars);
-        for (let i = 0; i < playersToSort.length; i++) {
-          seeds[seeds.length - (1 + i)].push(playersToSort[i]);
-        }
-      }
-
-      for (let k = 0; k < seeds.length; k++) {
-        let m = seeds[k].length,
-          t,
-          i;
-        while (m) {
-          i = Math.floor(Math.random() * m--);
-          t = seeds[k][m];
-          seeds[k][m] = seeds[k][i];
-          seeds[k][i] = t;
-        }
-      }
-
-      const joinedArray = seeds.flat();
-
-      let teamNumber = 0;
-
-      for (let i = 0; i < joinedArray.length; i++) {
-        sortedTeams[teamNumber].push(joinedArray[i]);
-
-        teamNumber++;
-        if (teamNumber === teams.length) {
-          teamNumber = 0;
-        }
-      }
-
-      sortedTeams.forEach((team, index) => {
-        team.average = team.reduce((total, object) => total + object.stars, 0) / team.length;
-        team.name = teams[index].name;
-      });
-
-      sortedTeams.sort((a, b) => b.average - a.average);
-      averageDifference = Math.abs(sortedTeams[sortedTeams.length - 1].average - sortedTeams[0].average);
-
-      return sortedTeams;
-    };
-
-    while (averageDifference > 0.3 && attempts < 100) {
-      teamMaker();
-      attempts++;
-    }
-    res.json(sortedTeams);
-  } catch (err) {
-    console.log(err.message);
+    return res.status(400).json({ message: "Erro ao finalizar partida", type: "error" });
   }
 });
 

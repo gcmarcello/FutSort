@@ -1,5 +1,6 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import Table from "../utils/table";
 
 const ListGroups = ({}) => {
   let { id } = useParams();

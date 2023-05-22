@@ -9,7 +9,6 @@ import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Home from "./components/Home";
-import ViewMatch from "./components/matches/viewMatch";
 import EditMatch from "./components/matches/editMatch";
 import Error404Page from "./components/404";
 import Loading from "./components/utils/Loading";
@@ -81,36 +80,31 @@ function App() {
             />
             <Route
               exact
-              path="/register"
+              path="/cadastro"
               element={
                 !isAuthenticated ? (
                   <Register isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
                 ) : (
-                  <Navigate to="/dashboard" isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
+                  <Navigate to="/painel" isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
                 )
               }
             />
+            <Route exact path="/grupo/:id" element={<GroupProfile isAuthenticated={isAuthenticated} />} />
             <Route
               exact
-              path="/viewmatch/:id"
-              element={<ViewMatch isAuthenticated={isAuthenticated} setIsLoading={setIsLoading} isLoading={isLoading} />}
-            />
-            <Route exact path="/group/:id" element={<GroupProfile isAuthenticated={isAuthenticated} />} />
-            <Route
-              exact
-              path="/password/reset/:requestId"
+              path="/senha/redefinir/:requestId"
               element={
                 !isAuthenticated ? (
                   <PasswordReset isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
                 ) : (
-                  <Navigate to="/dashboard" />
+                  <Navigate to="/painel" />
                 )
               }
             />
 
             {/* PROTECTED ROUTES */}
             <Route
-              path="/dashboard"
+              path="/painel"
               element={
                 isAuthenticated ? (
                   <Dashboard
@@ -125,13 +119,10 @@ function App() {
               }
             />
             <Route
-              path="/creatematch/:id"
-              element={isAuthenticated ? <CreateMatch isAuthenticated={isAuthenticated} /> : <Navigate to="/dashboard/" />}
+              path="/partida/nova/:id"
+              element={isAuthenticated ? <CreateMatch isAuthenticated={isAuthenticated} /> : <Navigate to="/painel/" />}
             />
-            <Route
-              path="/editmatch/:id"
-              element={isAuthenticated ? <EditMatch isAuthenticated={isAuthenticated} /> : <Navigate to="/dashboard/" />}
-            />
+            <Route path="/partida/:id" element={<EditMatch isAuthenticated={isAuthenticated} />} />
 
             {/* 404 */}
             <Route path="*" element={<Error404Page />} />

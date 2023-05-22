@@ -44,7 +44,7 @@ module.exports = async (req, res, next) => {
     }
   }
 
-  if (req.path === "/password/reset/*") {
+  if (req.path === "/senha/redefinir/*") {
     if (![name, password].every(Boolean)) {
       return res.status(400).json("Senha ou usuário estão vazios.");
     } else if (!validPassword(password)) {

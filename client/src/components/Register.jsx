@@ -119,7 +119,7 @@ const Register = ({ setIsAuthenticated }) => {
                 Registrar
               </button>
             </form>
-            <Link to="/dashboard">Login</Link>
+            <Link to="/painel">Login</Link>
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import React, { Fragment, useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import Table from "../utils/table";
 
 const ListRequests = ({ requestsChange, setRequestsChange }) => {
   const [requests, setRequests] = useState([]);
@@ -49,43 +50,30 @@ const ListRequests = ({ requestsChange, setRequestsChange }) => {
     <Fragment>
       <div className="card flex-fill m-1 ">
         <h4 className="card-header">Solicitações</h4>
-        <table className="table ">
-          <thead>
-            <tr>
-              <th>Grupo</th>
-              <th>Jogador</th>
-              <th>Usuário</th>
-              <th>Opções</th>
-            </tr>
-          </thead>
-          <tbody>
-            {requests.length !== 0 ? (
-              requests.map((request) => (
-                <tr key={request.request_id}>
-                  <td className="text-wrap">{request.group_name}</td>
-                  <td>{request.player_name}</td>
-                  <td>{request.user_name}</td>
-                  <td>
-                    <div className="d-flex">
-                      <button type="button" className="btn btn-success mx-1" onClick={() => answerRequest(request.request_id, "approved")}>
-                        <i className="bi bi-check2 fs-6"></i>
-                      </button>
-                      <button type="button" className="btn btn-danger mx-1" onClick={() => answerRequest(request.request_id, "denied")}>
-                        <i className="bi bi-x fs-6"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={4} className="text-center">
-                  Você não tem nenhuma solicitação pendente!
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        <Table
+          data={requests}
+          disableFilter={true}
+          disablePagination={true}
+          columns={[
+            { Header: "Grupo", accessor: "group_name" },
+            { Header: "Jogador", accessor: "player_name" },
+            { Header: "Usuário", accessor: "user_name" },
+            {
+              Header: "Responder",
+              accessor: "request_id",
+              Cell: ({ value }) => (
+                <div className="d-flex">
+                  <button type="button" className="btn btn-success mx-1" onClick={() => answerRequest(value, "approved")}>
+                    <i className="bi bi-check2 fs-6"></i>
+                  </button>
+                  <button type="button" className="btn btn-danger mx-1" onClick={() => answerRequest(value, "denied")}>
+                    <i className="bi bi-x fs-6"></i>
+                  </button>
+                </div>
+              ),
+            },
+          ]}
+        />
       </div>
     </Fragment>
   );
