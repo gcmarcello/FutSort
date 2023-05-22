@@ -34,7 +34,7 @@ const ListGroups = () => {
       accessor: "group_id",
       Cell: ({ value }) => (
         <>
-          <Link to={`/creatematch/${value}`} className="btn btn-primary mx-1">
+          <Link to={`/partida/nova/${value}`} className="btn btn-primary mx-1">
             ⚽ <span className="d-none d-md-inline-block">Criar Partida</span>
           </Link>
           <EditGroup group={groups.filter((group) => group.group_id === value)[0]} groupChange={groupChange} setGroupChange={setGroupChange} />
