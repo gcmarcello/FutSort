@@ -42,9 +42,9 @@ router.post("/sorting", authorization, async (req, res) => {
         (pickedPlayers[i].mvp_df + pickedPlayers[i].mvp_at + pickedPlayers[i].mvp_gk * 2) / pickedPlayers[i].player_matches || 0;
     }
 
-    const topScorerAvg = pickedPlayers.filter((player) => player.player_matches > 1).sort((a, b) => b.goalAvg - a.goalAvg)[0].goalAvg;
-    const topAssistantAvg = pickedPlayers.filter((player) => player.player_matches > 1).sort((c, d) => d.assistAvg - c.assistAvg)[0].assistAvg;
-    const topMvpSort = pickedPlayers.sort((a, b) => b.mvpAvg - a.mvpAvg)[0].mvpAvg;
+    const topScorerAvg = pickedPlayers.filter((player) => player.player_matches > 1).sort((a, b) => b.goalAvg - a.goalAvg)[0]?.goalAvg || 0;
+    const topAssistantAvg = pickedPlayers.filter((player) => player.player_matches > 1).sort((c, d) => d.assistAvg - c.assistAvg)[0]?.assistAvg || 0;
+    const topMvpSort = pickedPlayers.sort((a, b) => b.mvpAvg - a.mvpAvg)[0]?.mvpAvg || 0;
 
     // Defining ratings to start team sorting proccess
     for (let i = 0; i < pickedPlayers.length; i++) {
