@@ -17,7 +17,7 @@ const NavigationBar = ({ isAuthenticated, setIsAuthenticated }) => {
           headers: myHeaders,
         });
         const parseData = await response.json();
-        setName(parseData[0].user_name);
+        setName(parseData[0]?.user_name);
       } catch (err) {
         console.log(err.message);
       }
@@ -42,7 +42,10 @@ const NavigationBar = ({ isAuthenticated, setIsAuthenticated }) => {
 
   return (
     <Fragment>
-      <nav className="navbar sticky-top navbar-expand-md navbar-dark bg-success" aria-label="Offcanvas navbar large">
+      <nav
+        className="navbar sticky-top navbar-expand-md navbar-dark bg-success"
+        aria-label="Offcanvas navbar large"
+      >
         <div className="container-fluid">
           <a className="navbar-brand" href="/">
             {name ? `FutSort - ${name}` : `FutSort`}
@@ -56,23 +59,40 @@ const NavigationBar = ({ isAuthenticated, setIsAuthenticated }) => {
           >
             <span className="navbar-toggler-icon"></span>
           </button>
-          <div className="offcanvas offcanvas-end text-bg-dark" tabIndex="-1" id="offcanvasNavbar2" aria-labelledby="offcanvasNavbar2Label">
+          <div
+            className="offcanvas offcanvas-end text-bg-dark"
+            tabIndex="-1"
+            id="offcanvasNavbar2"
+            aria-labelledby="offcanvasNavbar2Label"
+          >
             <div className="offcanvas-header">
               <h5 className="offcanvas-title" id="offcanvasNavbar2Label">
                 Menu Principal
               </h5>
-              <button type="button" className="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              <button
+                type="button"
+                className="btn-close btn-close-white"
+                data-bs-dismiss="offcanvas"
+                aria-label="Close"
+              ></button>
             </div>
             <div className="offcanvas-body">
               {isAuthenticated ? (
                 <ul className="navbar-nav justify-content-end flex-grow-1">
                   <li className="nav-item">
-                    <a className="btn btn-outline-light me-3" aria-current="page" href="/painel">
+                    <a
+                      className="btn btn-outline-light me-3"
+                      aria-current="page"
+                      href="/painel"
+                    >
                       <i className="bi bi-house-door"></i> Painel
                     </a>
                   </li>
                   <li>
-                    <button className="btn btn-danger " onClick={(e) => logout(e)}>
+                    <button
+                      className="btn btn-danger "
+                      onClick={(e) => logout(e)}
+                    >
                       Logout
                     </button>
                   </li>
@@ -85,9 +105,9 @@ const NavigationBar = ({ isAuthenticated, setIsAuthenticated }) => {
                     </a>
                   </li>
                   <li className="mx-1 my-1">
-                    <Link className="btn btn-secondary " to="/cadastro">
+                    <a className="btn btn-secondary " href="/cadastro">
                       Registrar
-                    </Link>
+                    </a>
                   </li>
                 </ul>
               )}
